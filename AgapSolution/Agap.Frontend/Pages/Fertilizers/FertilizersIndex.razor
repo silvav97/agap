@@ -1,0 +1,96 @@
+﻿@page "/fertilizers"
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Fertilizantes</h3>
+
+<GenericList MyList="fertilizers">
+    <NoRecords>
+        <p>Aun no hay fertilizantes registrados.</p>
+    </NoRecords>
+    <Body>
+        <a href="/fertilizers/create" class="btn btn-primary">Nuevo Fertilizante</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fertilizante</th>
+                    <th>Marca</th>
+                    <th>Precio Por Gramo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fertilizer in fertilizers!)
+                {
+                    <tr>
+                        <td>@fertilizer.Name</td>
+                        <td>@fertilizer.Brand</td>
+                        <td>@fertilizer.PricePerGram</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="/fertilizers/edit/@fertilizer.Id">Editar</a>
+                            <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(fertilizer))>Borrar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Body>
+</GenericList>
+
+@code {
+    private List<Fertilizer>? fertilizers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var response = await repository.GetAsync<List<Fertilizer>>("api/fertilizers");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        fertilizers = response.Response;
+    }
+
+    private async Task DeleteAsync(Fertilizer fertilizer)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Esta seguro que quieres borrar el fertilizante: {fertilizer.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"api/fertilizers/{fertilizer.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+}
