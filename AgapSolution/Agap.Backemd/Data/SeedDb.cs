@@ -27,17 +27,24 @@ namespace Agap.Backemd.Data
         {
             if (!_context.Fertilizers.Any())
             {
-                _context.Fertilizers.Add(new Fertilizer { Name = "Orgánico", Brand = "Casero", PricePerGram = 10000 });
-                _context.Fertilizers.Add(new Fertilizer { Name = "Inorgánico", Brand = "Montate", PricePerGram = 10 });
-                _context.Fertilizers.Add(new Fertilizer { Name = "Peñol", Brand = "Wells", PricePerGram = 10 });
-                _context.Fertilizers.Add(new Fertilizer { Name = "GomezPlata", Brand = "Bill", PricePerGram = 10 });
+                _context.Fertilizers.Add(new Fertilizer { Name = "Tierra De Diatomeas Diatomita", Brand = "Diatomeas Colombia", PricePerGram = 3.60F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "ABONO Y FERTILIZANTE PLATANERO 10-4-14", Brand = "Agro tropico", PricePerGram = 3.23F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "MICORRIZAS HONGOS DEL SUELO ", Brand = "Campor Verde", PricePerGram = 1.25F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "POTASIO FERTILIZANTE PRODUPLANT", Brand = "Campofert", PricePerGram = 18.58F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "FERTILIZANTE EDÁFICO FOSFITEK POTASIO GOLD", Brand = "Efitec", PricePerGram = 23.51F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "LEONARDITA, ACONDICIONADOR DE SUELOS", Brand = "Diatomeas Colombia", PricePerGram = 2.40F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "BEAUVERIA BASSIANA", Brand = "Copralab", PricePerGram = 140.00F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "CACAO CRECIMIENTO", Brand = "BioPotent", PricePerGram = 2.12F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "Acondicionador Magnesio Sucre 30", Brand = "Minerargro", PricePerGram = 0.71F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "FERTILIZANTE 25-4-24", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Fertilizers.Add(new Fertilizer { Name = "AGRIMINS TOTTAL INICIO 11-22-5", Brand = "Colinagro", PricePerGram = 4.30F });
                 await _context.SaveChangesAsync();
             }
         }
 
         private async Task CheckCountriesAsync()
         {
-            if (_context.Countries.Any())
+            if (!_context.Countries.Any())
             {
                 var responseCountries = await _apiService.GetAsync<List<CountryResponse>>("/v1", "/countries");
                 if (responseCountries.WasSuccess)
