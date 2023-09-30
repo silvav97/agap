@@ -1,4 +1,5 @@
-﻿using Agap.Shared.Entities;
+﻿using Agap.Shared.DTOs;
+using Agap.Shared.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Agap.Backemd.Helpers
@@ -14,5 +15,9 @@ namespace Agap.Backemd.Helpers
         Task AddUserToRoleAsync(User user, string roleName);
 
         Task<bool> IsUserInRoleAsync(User user, string roleName);
+
+        Task<SignInResult> LoginAsync(LoginDTO model);
+
+        Task LogoutAsync();
     }
 }
