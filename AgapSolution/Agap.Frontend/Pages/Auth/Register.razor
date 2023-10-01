@@ -154,6 +154,8 @@
     private async Task CountryChangedAsync(ChangeEventArgs e)
     {
         var selectedCountry = Convert.ToInt32(e.Value!);
+        states = null;  
+        cities = null;
         await LoadStatesAsyn(selectedCountry);
     }
 
@@ -173,6 +175,7 @@
     private async Task StateChangedAsync(ChangeEventArgs e)
     {
         var selectedState = Convert.ToInt32(e.Value!);
+        cities = null;
         await LoadCitiesAsyn(selectedState);
     }
 
