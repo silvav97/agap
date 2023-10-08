@@ -1,41 +1,21 @@
-﻿using Agap.Backemd.Data;
-using Agap.Backemd.Interfaces;
-using Agap.Shared.DTOs;
-using Agap.Shared.Helpers;
+﻿using Agap.Backemd.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Controllers
 {
     public class GenericController<T> : Controller where T : class
     {
         private readonly IGenericUnitOfWork<T> _unitOfWork;
-        private readonly DataContext _context;
-        private readonly DbSet<T> _entity;
 
-        public GenericController(IGenericUnitOfWork<T> unitOfWork, DataContext context)
+        public GenericController(IGenericUnitOfWork<T> unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _context = context;
-            _entity = _context.Set<T>();
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
+        public virtual async Task<IActionResult> GetAsync()
         {
-            var queryable = _entity.AsQueryable();
-            return Ok(await queryable
-                .Paginate(pagination)
-                .ToListAsync());
-        }
-
-        [HttpGet("totalPages")]
-        public virtual async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
-        {
-            var queryable = _entity.AsQueryable();
-            double count = await queryable.CountAsync();
-            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
-            return Ok(totalPages);
+            return Ok(await _unitOfWork.GetAsync());
         }
 
         [HttpGet("{id}")]

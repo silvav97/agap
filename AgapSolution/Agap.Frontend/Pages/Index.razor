@@ -1,15 +1,7 @@
 ﻿@page "/"
 
-<PageTitle>Inicio</PageTitle>
+<PageTitle>Index</PageTitle>
 
-<AuthorizeView Roles="Admin, User">
-    <Authorized>
-        <h1>Bienvenido a AGAP</h1>
+<h1>Bienvenido a AGAP</h1>
 
-        <p>Esta es una aplicacion para la planeacion y trazabilidad de proyectos agricolas en Antioquia - Colombia.</p>
-        <p>Estas autenticado y autorizado como @context.User.Identity?.Name</p>
-    </Authorized>
-    <NotAuthorized>
-        <p>No estas autorizado para estar en esta pagina.</p>
-    </NotAuthorized>
-</AuthorizeView>
+Esta es una aplicacion para la planeacion y trazabilidad de proyectos agricolas en Antioquia - Colombia.
