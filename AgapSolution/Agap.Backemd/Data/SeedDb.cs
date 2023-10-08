@@ -27,6 +27,7 @@ namespace Agap.Backemd.Data
             await CheckFertilizersAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", UserType.Admin);
+            await CheckUserAsync("1010", "Sebastian", "Silva", "sebastian@yopmail.com", "333 666 6666", "Lejana Cercanía", UserType.Admin);
         }
 
         private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
