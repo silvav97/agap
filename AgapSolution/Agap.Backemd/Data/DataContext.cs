@@ -1,11 +1,9 @@
 ﻿using Agap.Shared.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Data
 {
-    public class DataContext : IdentityDbContext<User>
-
+    public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
