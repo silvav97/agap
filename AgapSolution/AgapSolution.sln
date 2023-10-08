@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agap.Shared", "Agap.Shared\Agap.Shared.csproj", "{F502F684-4FCD-4A83-9BDA-E403DCD289B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.Shared", "Agap.Shared\Agap.Shared.csproj", "{F502F684-4FCD-4A83-9BDA-E403DCD289B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agap.Backemd", "Agap.Backemd\Agap.Backemd.csproj", "{13AE7784-DB0C-4D57-8515-3307145C9A1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.Backemd", "Agap.Backemd\Agap.Backemd.csproj", "{13AE7784-DB0C-4D57-8515-3307145C9A1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agap.Frontend", "Agap.Frontend\Agap.Frontend.csproj", "{94627079-5342-4223-8AC8-640772AC797A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.Frontend", "Agap.Frontend\Agap.Frontend.csproj", "{94627079-5342-4223-8AC8-640772AC797A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
