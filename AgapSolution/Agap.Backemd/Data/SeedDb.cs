@@ -1,7 +1,5 @@
-﻿using Agap.Backemd.Helpers;
-using Agap.Backemd.Services;
+﻿using Agap.Backemd.Services;
 using Agap.Shared.Entities;
-using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +9,11 @@ namespace Agap.Backemd.Data
     {
         private readonly DataContext _context;
         private readonly IApiService _apiService;
-        private readonly IUserHelper _userHelper;
 
-        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper)
+        public SeedDb(DataContext context, IApiService apiService)
         {
             _context = context;
             _apiService = apiService;
-            _userHelper = userHelper;
         }
 
         public async Task SeedAsync()
