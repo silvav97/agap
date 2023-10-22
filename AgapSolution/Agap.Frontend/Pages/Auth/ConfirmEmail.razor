@@ -11,6 +11,9 @@
 @code {
     private string? message;
 
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
     [Parameter]
     [SupplyParameterFromQuery]
     public string UserId { get; set; } = "";
@@ -31,7 +34,7 @@
         else
         {
             await sweetAlertService.FireAsync("Confirmación", "Gracias por confirmar su email, ahora puedes ingresar al sistema.", SweetAlertIcon.Info);
-            navigationManager.NavigateTo("/Login");
+            var modalReference = Modal.Show<Login>();
         }
     }
 }

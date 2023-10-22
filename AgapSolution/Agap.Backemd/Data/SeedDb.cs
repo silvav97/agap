@@ -29,10 +29,10 @@ namespace Agap.Backemd.Data
             await CheckCountriesAsync();
             await CheckFertilizersAsync();
             await CheckRolesAsync();
-            await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", UserType.Admin);
+            await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
         }
 
-        private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
+        private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, string image, UserType userType)
         {
             var user = await _userHelper.GetUserAsync(email);
             if (user == null)
@@ -42,6 +42,19 @@ namespace Agap.Backemd.Data
                 {
                     city = await _context.Cities.FirstOrDefaultAsync();
                 }
+
+                string filePath;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    filePath = $"{Environment.CurrentDirectory}\\Images\\users\\{image}";
+                }
+                else
+                {
+                    filePath = $"{Environment.CurrentDirectory}/Images/users/{image}";
+                }
+
+                var fileBytes = File.ReadAllBytes(filePath);
+                var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "jpg", "users");
 
                 user = new User
                 {
@@ -54,6 +67,7 @@ namespace Agap.Backemd.Data
                     Document = document,
                     City = city,
                     UserType = userType,
+                    Photo = imagePath,
                 };
 
                 await _userHelper.AddUserAsync(user, "123456");
@@ -87,24 +101,24 @@ namespace Agap.Backemd.Data
                 _context.Fertilizers.Add(new Fertilizer { Name = "Acondicionador Magnesio Sucre 30", Brand = "Minerargro", PricePerGram = 0.71F });
                 _context.Fertilizers.Add(new Fertilizer { Name = "FERTILIZANTE 25-4-24", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Fertilizers.Add(new Fertilizer { Name = "AGRIMINS TOTTAL INICIO 11-22-5", Brand = "Colinagro", PricePerGram = 4.30F });
-                
-               /* _context.Countries.Add(new Country { Name = "Colombia" });
-                await _context.SaveChangesAsync();
 
-                var countryId = _context.Countries.Single(c => c.Name == "Colombia").Id; // Obtener el Id auto-generado
-                _context.States.Add(new State { Name = "Antioquia", CountryId = countryId });
-                await _context.SaveChangesAsync();
+                /* _context.Countries.Add(new Country { Name = "Colombia" });
+                 await _context.SaveChangesAsync();
 
-                var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
-                _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
+                 var countryId = _context.Countries.Single(c => c.Name == "Colombia").Id; // Obtener el Id auto-generado
+                 _context.States.Add(new State { Name = "Antioquia", CountryId = countryId });
+                 await _context.SaveChangesAsync();
 
-                await _context.SaveChangesAsync(); */
+                 var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
+                 _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
+                */
+                await _context.SaveChangesAsync(); 
             }
         }
 
         private async Task CheckCountriesAsync()
         {
-            if (!_context.Countries.Any())
+            if (_context.Countries.Any())
             {
                 var responseCountries = await _apiService.GetAsync<List<CountryResponse>>("/v1", "/countries");
                 if (responseCountries.WasSuccess)
