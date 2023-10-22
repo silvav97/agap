@@ -118,7 +118,7 @@ namespace Agap.Backemd.Data
 
         private async Task CheckCountriesAsync()
         {
-            if (_context.Countries.Any())
+            if (!_context.Countries.Any())
             {
                 var responseCountries = await _apiService.GetAsync<List<CountryResponse>>("/v1", "/countries");
                 if (responseCountries.WasSuccess)
