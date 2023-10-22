@@ -1,4 +1,4 @@
-﻿@page "/fertilizers/edit/{Id:int}"
+﻿@page "/fertilizers/edit/{FertilizerId:int}"
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager navigationManager
 @inject IRepository repository
@@ -19,12 +19,15 @@ else
     private Fertilizer? fertilizer;
     private FertilizerForm? fertilizerForm;
 
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
     [Parameter]
-    public int Id { get; set; }
+    public int FertilizerId { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        var response = await repository.GetAsync<Fertilizer>($"/api/fertilizers/{Id}");
+        var response = await repository.GetAsync<Fertilizer>($"/api/fertilizers/{FertilizerId}");
         if (response.Error)
         {
             if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
@@ -47,7 +50,10 @@ else
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
         Return();
+
         var toast = sweetAlertService.Mixin(new SweetAlertOptions
             {
                 Toast = true,

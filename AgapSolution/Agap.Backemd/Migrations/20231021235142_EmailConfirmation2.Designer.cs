@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agap.Backemd.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230917174412_AddUserTables")]
-    partial class AddUserTables
+    [Migration("20231021235142_EmailConfirmation2")]
+    partial class EmailConfirmation2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

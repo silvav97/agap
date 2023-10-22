@@ -4,11 +4,11 @@
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
 
-<EditForm Model="loginDTO" OnValidSubmit="LoginAsync">
-    <DataAnnotationsValidator />
 
-    <div class="row">
-        <div class="col-4 offset-md-4">
+<div class="row">
+    <div class="col-12">
+        <EditForm Model="loginDTO" OnValidSubmit="LoginAsync">
+            <DataAnnotationsValidator />
 
             <div class="card bg-light">
                 <div class="card-header justify-content-center">
@@ -33,10 +33,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="card-footer">
+                    <p><a class="btn btn-link" href="/ResendToken">Reenviar correro de activación de cuenta</a></p>
+                    <p><a class="btn btn-link" href="/RecoverPassword">¿Has olvidado tu contraseña?</a></p>
+                </div>
             </div>
-        </div>
+        </EditForm>
     </div>
-</EditForm>
+</div>
 
 @code {
     private LoginDTO loginDTO = new();
@@ -53,5 +57,13 @@
 
         await loginService.LoginAsync(responseHttp.Response!.Token);
         navigationManager.NavigateTo("/");
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Usuario inició sesión con éxito.");
     }
 }

@@ -5,7 +5,7 @@
 namespace Agap.Backemd.Migrations
 {
     /// <inheritdoc />
-    public partial class ConfigureBackendAsStartUpProject : Migration
+    public partial class EmailConfirmation2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

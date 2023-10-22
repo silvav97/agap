@@ -17,7 +17,7 @@ else
             <div class="card-header">
                 <span>
                     <i class="oi oi-person" /> Editar Usuario
-                    <a class="btn btn-sm btn-secondary float-end" href="/changePassword"><i class="oi oi-key" /> Cambiar Contraseña</a>
+                    <a class="btn btn-sm btn-secondary float-end" @onclick=@(() => ShowModal())><i class="oi oi-key" /> Cambiar Contraseña</a>
                     <button class="btn btn-sm btn-primary float-end mx-2" type="submit"><i class="oi oi-check" /> Guardar Cambios</button>
                 </span>
             </div>
@@ -124,6 +124,9 @@ else
     private List<City>? cities;
     private string? imageUrl;
 
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadUserAsyc();
@@ -136,6 +139,12 @@ else
             imageUrl = user.Photo;
             user.Photo = null;
         }
+
+    }
+
+    private void ShowModal()
+    {
+        var modalReference = Modal.Show<ChangePassword>();
     }
 
     private async Task LoadUserAsyc()
@@ -166,7 +175,7 @@ else
         var selectedCountry = Convert.ToInt32(e.Value!);
         states = null;
         cities = null;
-        user!.CityId = 0;
+        user.CityId = 0;
         await LoadStatesAsyn(selectedCountry);
     }
 
@@ -174,7 +183,7 @@ else
     {
         var selectedState = Convert.ToInt32(e.Value!);
         cities = null;
-        user!.CityId = 0;
+        user.CityId = 0;
         await LoadCitiesAsyn(selectedState);
     }
 
@@ -219,7 +228,7 @@ else
 
     private async Task SaveUserAsync()
     {
-        var responseHttp = await repository.PutAsync<User>("/api/accounts", user!);
+        var responseHttp = await repository.PutAsync<User, TokenDTO>("/api/accounts", user!);
         if (responseHttp.Error)
         {
             var message = await responseHttp.GetErrorMessageAsync();
@@ -227,6 +236,7 @@ else
             return;
         }
 
+        await loginService.LoginAsync(responseHttp.Response!.Token);
         navigationManager.NavigateTo("/");
     }
 }

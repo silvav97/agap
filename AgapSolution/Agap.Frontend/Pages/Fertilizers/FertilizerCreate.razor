@@ -12,6 +12,9 @@
     private Fertilizer fertilizer = new();
     private FertilizerForm? fertilizerForm;
 
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
     private async Task CreateAsync()
     {
         var response = await repository.PostAsync("/api/fertilizers", fertilizer);
@@ -21,7 +24,10 @@
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
         Return();
+
         var toast = sweetAlertService.Mixin(new SweetAlertOptions
             {
                 Toast = true,

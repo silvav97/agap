@@ -1,6 +1,7 @@
 ﻿@page "/logout"
 @inject ILoginService loginService
 @inject NavigationManager navigationManager
+@inject SweetAlertService sweetAlertService
 
 <p>Cerrando sesión...</p>
 
@@ -9,5 +10,13 @@
     {
         await loginService.LogoutAsync();
         navigationManager.NavigateTo("/");
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Usuario cerro sesión con éxito.");
     }
 }
