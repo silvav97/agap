@@ -1,4 +1,5 @@
-﻿using Agap.Backemd.Interfaces;
+﻿using Agap.Backemd.Repositories;
+using Agap.Shared.DTOs;
 using Agap.Shared.Responses;
 
 namespace Agap.Backemd.UnitsOfWork
@@ -12,14 +13,16 @@ namespace Agap.Backemd.UnitsOfWork
             _repository = repository;
         }
 
-        public async Task<Response<T>> AddAsync(T model) => await _repository.AddAsync(model);
+        public virtual async Task<Response<T>> AddAsync(T model) => await _repository.AddAsync(model);
 
-        public async Task DeleteAsync(int id) => await _repository.DeleteAsync(id);
+        public virtual async Task<Response<T>> DeleteAsync(int id) => await _repository.DeleteAsync(id);
 
-        public async Task<IEnumerable<T>> GetAsync() => await _repository.GetAsync();
+        public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination) => await _repository.GetAsync(pagination);
 
-        public async Task<T> GetAsync(int id) => await _repository.GetAsync(id);
+        public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _repository.GetTotalPagesAsync(pagination);
 
-        public async Task<Response<T>> UpdateAsync(T model) => await _repository.UpdateAsync(model);
+        public virtual async Task<Response<T>> GetAsync(int id) => await _repository.GetAsync(id);
+
+        public virtual async Task<Response<T>> UpdateAsync(T model) => await _repository.UpdateAsync(model);
     }
 }

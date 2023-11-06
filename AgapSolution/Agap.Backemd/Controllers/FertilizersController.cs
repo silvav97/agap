@@ -1,12 +1,9 @@
-﻿using Agap.Backemd.Data;
-using Agap.Backemd.Interfaces;
+﻿using Agap.Backemd.UnitsOfWork;
 using Agap.Shared.DTOs;
 using Agap.Shared.Entities;
-using Agap.Shared.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Controllers
 {
@@ -15,41 +12,33 @@ namespace Agap.Backemd.Controllers
     [Route("api/[controller]")]
     public class FertilizersController : GenericController<Fertilizer>
     {
-        private readonly DataContext _context;
+        private readonly IFertilizersUnitOfWork _fertilizersUnitOfWork;
 
-        public FertilizersController(IGenericUnitOfWork<Fertilizer> unitOfWork, DataContext context) : base(unitOfWork, context)
+        public FertilizersController(IGenericUnitOfWork<Fertilizer> unit, IFertilizersUnitOfWork fertilizersUnitOfWork) : base(unit)
         {
-            _context = context;
+            _fertilizersUnitOfWork = fertilizersUnitOfWork;
         }
 
         [HttpGet]
         public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Fertilizers.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            var response = await _fertilizersUnitOfWork.GetAsync(pagination);
+            if (response.WasSuccess)
             {
-                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                return Ok(response.Result);
             }
-
-            return Ok(await queryable
-                .OrderBy(x => x.Name)
-                .Paginate(pagination)
-                .ToListAsync());
+            return BadRequest();
         }
 
-
         [HttpGet("totalPages")]
-        public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Fertilizers.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            var action = await _fertilizersUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
             {
-                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                return Ok(action.Result);
             }
-
-            double count = await queryable.CountAsync();
-            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
-            return Ok(totalPages);
+            return BadRequest();
         }
     }
 }

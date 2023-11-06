@@ -25,7 +25,16 @@ namespace Agap.Backemd.Data
             modelBuilder.Entity<State>().HasIndex(state => new { state.CountryId, state.Name }).IsUnique();
             modelBuilder.Entity<City>().HasIndex(city => new { city.StateId, city.Name }).IsUnique();
             modelBuilder.Entity<Fertilizer>().HasIndex(fertilizer => new { fertilizer.Name, fertilizer.Brand }).IsUnique();
+            DisableCascadingDelete(modelBuilder);
+        }
 
+        private void DisableCascadingDelete(ModelBuilder modelBuilder)
+        {
+            var relationships = modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys());
+            foreach (var relationship in relationships)
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
         }
     }
 }

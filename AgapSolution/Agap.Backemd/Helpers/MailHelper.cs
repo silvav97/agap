@@ -7,10 +7,12 @@ namespace Agap.Backemd.Helpers
     public class MailHelper : IMailHelper
     {
         private readonly IConfiguration _configuration;
+        private readonly ISmtpClient _smtpClient;
 
-        public MailHelper(IConfiguration configuration)
+        public MailHelper(IConfiguration configuration, ISmtpClient smtpClient)
         {
             _configuration = configuration;
+            _smtpClient = smtpClient;
         }
 
         public Response<string> SendMail(string toName, string toEmail, string subject, string body)
@@ -27,19 +29,16 @@ namespace Agap.Backemd.Helpers
                 message.From.Add(new MailboxAddress(name, from));
                 message.To.Add(new MailboxAddress(toName, toEmail));
                 message.Subject = subject;
-                var bodyBuilder = new BodyBuilder
+                BodyBuilder bodyBuilder = new BodyBuilder
                 {
                     HtmlBody = body
                 };
                 message.Body = bodyBuilder.ToMessageBody();
 
-                using (var client = new SmtpClient())
-                {
-                    client.Connect(smtp, int.Parse(port!), false);
-                    client.Authenticate(from, password);
-                    client.Send(message);
-                    client.Disconnect(true);
-                }
+                _smtpClient.Connect(smtp!, int.Parse(port!), false);
+                _smtpClient.Authenticate(from!, password!);
+                _smtpClient.Send(message);
+                _smtpClient.Disconnect(true);
 
                 return new Response<string> { WasSuccess = true };
             }

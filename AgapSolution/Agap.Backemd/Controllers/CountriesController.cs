@@ -1,12 +1,9 @@
-﻿using Agap.Backemd.Data;
-using Agap.Backemd.Interfaces;
+﻿using Agap.Backemd.UnitsOfWork;
 using Agap.Shared.DTOs;
 using Agap.Shared.Entities;
-using Agap.Shared.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Controllers
 {
@@ -15,67 +12,51 @@ namespace Agap.Backemd.Controllers
     [Route("api/[controller]")]
     public class CountriesController : GenericController<Country>
     {
-        private readonly DataContext _context;
+        private readonly ICountriesUnitOfWork _countriesUnitOfWork;
 
-        public CountriesController(IGenericUnitOfWork<Country> unitOfWork, DataContext context) : base(unitOfWork, context)
+        public CountriesController(IGenericUnitOfWork<Country> unit, ICountriesUnitOfWork countriesUnitOfWork) : base(unit)
         {
-            _context = context;
+            _countriesUnitOfWork = countriesUnitOfWork;
         }
 
         [AllowAnonymous]
         [HttpGet("combo")]
-        public async Task<ActionResult> GetComboAsync()
+        public async Task<IActionResult> GetComboAsync()
         {
-            return Ok(await _context.Countries
-                .OrderBy(c => c.Name)
-                .ToListAsync());
+            return Ok(await _countriesUnitOfWork.GetComboAsync());
         }
 
         [HttpGet]
         public override async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Countries
-                .Include(c => c.States)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            var response = await _countriesUnitOfWork.GetAsync(pagination);
+            if (response.WasSuccess)
             {
-                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                return Ok(response.Result);
             }
-
-            return Ok(await queryable
-                .OrderBy(c => c.Name)
-                .Paginate(pagination)
-                .ToListAsync());
+            return BadRequest();
         }
 
         [HttpGet("totalPages")]
-        public override async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Countries.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            var action = await _countriesUnitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
             {
-                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                return Ok(action.Result);
             }
-
-            double count = await queryable.CountAsync();
-            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
-            return Ok(totalPages);
+            return BadRequest();
         }
 
         [HttpGet("{id}")]
         public override async Task<IActionResult> GetAsync(int id)
         {
-            var country = await _context.Countries
-                .Include(c => c.States!)
-                .ThenInclude(s => s.Cities)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            if (country == null)
+            var response = await _countriesUnitOfWork.GetAsync(id);
+            if (response.WasSuccess)
             {
-                return NotFound();
+                return Ok(response.Result);
             }
-            return Ok(country);
+            return NotFound(response.Message);
         }
     }
 }
