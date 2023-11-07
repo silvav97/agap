@@ -31,6 +31,7 @@ namespace Agap.Backemd.Data
             await _context.Database.EnsureCreatedAsync();
             await CheckCountriesAsync2();
             await CheckFertilizersAsync();
+            await CheckPesticidesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
         }
@@ -130,16 +131,6 @@ namespace Agap.Backemd.Data
                 _context.Fertilizers.Add(new Fertilizer { Name = "FERTILIZANTE 25-4-24", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Fertilizers.Add(new Fertilizer { Name = "AGRIMINS TOTTAL INICIO 11-22-5", Brand = "Colinagro", PricePerGram = 4.30F });
 
-                /* _context.Countries.Add(new Country { Name = "Colombia" });
-                 await _context.SaveChangesAsync();
-
-                 var countryId = _context.Countries.Single(c => c.Name == "Colombia").Id; // Obtener el Id auto-generado
-                 _context.States.Add(new State { Name = "Antioquia", CountryId = countryId });
-                 await _context.SaveChangesAsync();
-
-                 var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
-                 _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
-                */
                 await _context.SaveChangesAsync();
             }
         }
@@ -168,16 +159,34 @@ namespace Agap.Backemd.Data
                     {
                         Weather = "Temperate",
                         Name = name,
-                        PlantQuantityPerSquareMeter = new Random().Next(1, 100), 
-                        HarvestTime = new Random().Next(1, 100), 
-                        FertilizerId = new Random().Next(1, 10), 
-                        FertilizerQuantityPerPlant = new Random().Next(1, 10), 
-                        FertilizerFrequency = new Random().Next(1, 100), 
-                        PesticideId = new Random().Next(1, 10), 
-                        PesticideQuantityPerPlant = new Random().Next(1, 10), 
+                        PlantQuantityPerSquareMeter = new Random().Next(1, 100),
+                        HarvestTime = new Random().Next(1, 100),
+                        FertilizerId = new Random().Next(1, 10),
+                        FertilizerQuantityPerPlant = new Random().Next(1, 10),
+                        FertilizerFrequency = new Random().Next(1, 100),
+                        PesticideId = new Random().Next(1, 10),
+                        PesticideQuantityPerPlant = new Random().Next(1, 10),
                         PesticideFrequency = new Random().Next(1, 100)
                     });
                 }
+            }
+        }
+
+        private async Task CheckPesticidesAsync()
+        {
+            if (!_context.Pesticides.Any())
+            {
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 1", Brand = "Diatomeas Colombia", PricePerGram = 3.60F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 2", Brand = "Agro tropico", PricePerGram = 3.23F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 11", Brand = "Campor Verde", PricePerGram = 1.25F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 12", Brand = "Campofert", PricePerGram = 18.58F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 111", Brand = "Efitec", PricePerGram = 23.51F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 112", Brand = "Diatomeas Colombia", PricePerGram = 2.40F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida x", Brand = "Copralab", PricePerGram = 140.00F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xx", Brand = "BioPotent", PricePerGram = 2.12F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxxx", Brand = "Colinagro", PricePerGram = 4.30F });
 
                 await _context.SaveChangesAsync();
             }
