@@ -1,6 +1,7 @@
 ﻿using Agap.Backemd.Helpers;
 using Agap.Backemd.Services;
 using Agap.Shared.Entities;
+using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
@@ -139,6 +140,45 @@ namespace Agap.Backemd.Data
                  var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
                  _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
                 */
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckCropTypesAsync()
+        {
+            if (!_context.CropTypes.Any())
+            {
+                var cropTypeNames = new List<string>
+        {
+            "Banano",
+            "Mango",
+            "Guayaba",
+            "Ruby Corn",
+            "Piña",
+            "Carambolo",
+            "Coco",
+            "Papaya",
+            "Pitaya",
+            "Liches"
+        };
+
+                foreach (var name in cropTypeNames)
+                {
+                    _context.CropTypes.Add(new CropType
+                    {
+                        Weather = "Temperate",
+                        Name = name,
+                        PlantQuantityPerSquareMeter = new Random().Next(1, 100), 
+                        HarvestTime = new Random().Next(1, 100), 
+                        FertilizerId = new Random().Next(1, 10), 
+                        FertilizerQuantityPerPlant = new Random().Next(1, 10), 
+                        FertilizerFrequency = new Random().Next(1, 100), 
+                        PesticideId = new Random().Next(1, 10), 
+                        PesticideQuantityPerPlant = new Random().Next(1, 10), 
+                        PesticideFrequency = new Random().Next(1, 100)
+                    });
+                }
+
                 await _context.SaveChangesAsync();
             }
         }

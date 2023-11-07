@@ -1,4 +1,5 @@
 ﻿using Agap.Shared.Entities;
+using Agap.Shared.Entities.Agap.Shared.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,8 @@ namespace Agap.Backemd.Data
 
         public DbSet<Fertilizer> Fertilizers { get; set; }
 
+        public DbSet<CropType> CropTypes { get; set; }
+
         public DbSet<City> Cities { get; set; }
 
         public DbSet<Country> Countries { get; set; }
@@ -25,6 +28,7 @@ namespace Agap.Backemd.Data
             modelBuilder.Entity<State>().HasIndex(state => new { state.CountryId, state.Name }).IsUnique();
             modelBuilder.Entity<City>().HasIndex(city => new { city.StateId, city.Name }).IsUnique();
             modelBuilder.Entity<Fertilizer>().HasIndex(fertilizer => new { fertilizer.Name, fertilizer.Brand }).IsUnique();
+            modelBuilder.Entity<CropType>().HasIndex(cropType => cropType.Name).IsUnique();
             DisableCascadingDelete(modelBuilder);
         }
 
