@@ -29,11 +29,8 @@ namespace Agap.Backemd.Data
             modelBuilder.Entity<State>().HasIndex(state => new { state.CountryId, state.Name }).IsUnique();
             modelBuilder.Entity<City>().HasIndex(city => new { city.StateId, city.Name }).IsUnique();
             modelBuilder.Entity<Fertilizer>().HasIndex(fertilizer => new { fertilizer.Name, fertilizer.Brand }).IsUnique();
-<<<<<<< HEAD
             modelBuilder.Entity<CropType>().HasIndex(cropType => cropType.Name).IsUnique();
-=======
             modelBuilder.Entity<Pesticide>().HasIndex(pesticide => new { pesticide.Name, pesticide.Brand }).IsUnique();
->>>>>>> ssilva
             DisableCascadingDelete(modelBuilder);
         }
 

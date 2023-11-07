@@ -32,6 +32,7 @@ namespace Agap.Backemd.Data
             await CheckCountriesAsync2();
             await CheckFertilizersAsync();
             await CheckPesticidesAsync();
+            await CheckCropTypesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
         }
@@ -152,6 +153,8 @@ namespace Agap.Backemd.Data
             "Pitaya",
             "Liches"
         };
+                var fertilizer = _context.Fertilizers.Single(f => f.Name == "Tierra De Diatomeas Diatomita");
+                var pesticide = _context.Pesticides.Single(p => p.Name == "Pesticida 11");
 
                 foreach (var name in cropTypeNames)
                 {
@@ -161,14 +164,17 @@ namespace Agap.Backemd.Data
                         Name = name,
                         PlantQuantityPerSquareMeter = new Random().Next(1, 100),
                         HarvestTime = new Random().Next(1, 100),
-                        FertilizerId = new Random().Next(1, 10),
+                        FertilizerId = fertilizer.Id,
                         FertilizerQuantityPerPlant = new Random().Next(1, 10),
                         FertilizerFrequency = new Random().Next(1, 100),
-                        PesticideId = new Random().Next(1, 10),
+                        PesticideId = pesticide.Id,
                         PesticideQuantityPerPlant = new Random().Next(1, 10),
-                        PesticideFrequency = new Random().Next(1, 100)
+                        PesticideFrequency = new Random().Next(1, 100),
+                        Fertilizer = fertilizer,
+                        Pesticide = pesticide
                     });
                 }
+                await _context.SaveChangesAsync();
             }
         }
 
