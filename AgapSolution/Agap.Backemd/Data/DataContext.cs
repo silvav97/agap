@@ -13,6 +13,8 @@ namespace Agap.Backemd.Data
 
         public DbSet<Fertilizer> Fertilizers { get; set; }
 
+        public DbSet<Pesticide> Pesticides { get; set; }
+
         public DbSet<City> Cities { get; set; }
 
         public DbSet<Country> Countries { get; set; }
@@ -25,6 +27,7 @@ namespace Agap.Backemd.Data
             modelBuilder.Entity<State>().HasIndex(state => new { state.CountryId, state.Name }).IsUnique();
             modelBuilder.Entity<City>().HasIndex(city => new { city.StateId, city.Name }).IsUnique();
             modelBuilder.Entity<Fertilizer>().HasIndex(fertilizer => new { fertilizer.Name, fertilizer.Brand }).IsUnique();
+            modelBuilder.Entity<Pesticide>().HasIndex(pesticide => new { pesticide.Name, pesticide.Brand }).IsUnique();
             DisableCascadingDelete(modelBuilder);
         }
 

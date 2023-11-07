@@ -63,12 +63,14 @@ builder.Services.AddScoped<IRuntimeInformationWrapper, RuntimeInformationWrapper
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+builder.Services.AddScoped<IPesticidesRepository, PesticidesRepository>();
 builder.Services.AddScoped<IFertilizersRepository, FertilizersRepository>();
 builder.Services.AddScoped<ICitiesRepository, CitiesRepository>();
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IStatesRepository, StatesRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
+builder.Services.AddScoped<IPesticidesUnitOfWork, PesticidesUnitOfWork>();
 builder.Services.AddScoped<IFertilizersUnitOfWork, FertilizersUnitOfWork>();
 builder.Services.AddScoped<ICitiesUnitOfWork, CitiesUnitOfWork>();
 builder.Services.AddScoped<ICountriesUnitOfWork, CountriesUnitOfWork>();
