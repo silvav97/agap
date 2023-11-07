@@ -5,7 +5,7 @@ using Agap.Shared.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
-namespace Agap.UnitTest
+namespace Agap.UnitTest.Controllers
 {
 
     [TestClass]

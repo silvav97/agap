@@ -14,22 +14,50 @@ namespace Agap.Backemd.Data
         private readonly IApiService _apiService;
         private readonly IUserHelper _userHelper;
         private readonly IFileStorage _fileStorage;
+        private readonly IRuntimeInformationWrapper _runtimeInformationWrapper;
 
-        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper, IFileStorage fileStorage)
+        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper, IFileStorage fileStorage, IRuntimeInformationWrapper runtimeInformationWrapper)
         {
             _context = context;
             _apiService = apiService;
             _userHelper = userHelper;
             _fileStorage = fileStorage;
+            _runtimeInformationWrapper = runtimeInformationWrapper;
         }
 
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-            await CheckCountriesAsync();
+            await CheckCountriesAsync2();
             await CheckFertilizersAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
+        }
+
+        private async Task CheckCountriesAsync2()
+        {
+            if (!_context.Countries.Any())
+            {
+                _context.Countries.Add(new Country
+                {
+                    Name = "Colombia",
+                    States = new List<State>
+                    {
+                        new State
+                        {
+                            Name = "Antioquia",
+                            Cities = new List<City>
+                            {
+                                new City
+                                {
+                                    Name = "Medellín"
+                                }
+                            }
+                        }
+                    }
+                });
+                await _context.SaveChangesAsync();
+            }
         }
 
         private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, string image, UserType userType)
@@ -44,7 +72,7 @@ namespace Agap.Backemd.Data
                 }
 
                 string filePath;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (_runtimeInformationWrapper.IsOSPlatform(OSPlatform.Windows))
                 {
                     filePath = $"{Environment.CurrentDirectory}\\Images\\users\\{image}";
                 }
@@ -52,7 +80,6 @@ namespace Agap.Backemd.Data
                 {
                     filePath = $"{Environment.CurrentDirectory}/Images/users/{image}";
                 }
-
                 var fileBytes = File.ReadAllBytes(filePath);
                 var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "jpg", "users");
 
@@ -112,7 +139,7 @@ namespace Agap.Backemd.Data
                  var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
                  _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
                 */
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
             }
         }
 
