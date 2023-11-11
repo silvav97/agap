@@ -5,6 +5,7 @@ using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Runtime.InteropServices;
 
 namespace Agap.Backemd.Data
@@ -35,6 +36,7 @@ namespace Agap.Backemd.Data
             await CheckCropTypesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
+            await CheckExpensesAsync();
         }
 
         private async Task CheckCountriesAsync2()
@@ -193,6 +195,25 @@ namespace Agap.Backemd.Data
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxxx", Brand = "Colinagro", PricePerGram = 4.30F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckExpensesAsync()
+        {
+            if (!_context.Expenses.Any())
+            {
+                var user = _context.Users.Single(user => user.Email == "avasquez@yopmail.com");
+
+                _context.Projects.Add(new Project { Name = "Proyecto1", Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Metrallo", TotalBudget = 1.435F });
+                await _context.SaveChangesAsync();
+
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = 1, CropTypeId = 1, Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2}) ;
+                await _context.SaveChangesAsync();
+
+
+                _context.Expenses.Add(new Expense { CropId = 1, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
 
                 await _context.SaveChangesAsync();
             }

@@ -15,10 +15,17 @@ namespace Agap.Backemd.Data
         public DbSet<Fertilizer> Fertilizers { get; set; }
 
         public DbSet<CropType> CropTypes { get; set; }
+
         public DbSet<Pesticide> Pesticides { get; set; }
 
-        public DbSet<City> Cities { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
 
+        public DbSet<Crop> Crops { get; set; }
+
+        public DbSet<Project> Projects { get; set; }
+
+
+        public DbSet<City> Cities { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<State> States { get; set; }
 
