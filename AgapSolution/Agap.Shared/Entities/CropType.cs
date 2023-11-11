@@ -6,8 +6,6 @@
     {
         public class CropType
         {
-            [Required(ErrorMessage = "El campo {0} es obligatorio.")]
-            [Range(1, int.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
             public int Id { get; set; }
 
             [Display(Name = "Clima")]

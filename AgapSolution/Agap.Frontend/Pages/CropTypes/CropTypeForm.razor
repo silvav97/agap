@@ -1,0 +1,132 @@
+﻿@using Agap.Shared.Entities
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+
+@inject SweetAlertService sweetAlertService
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <!-- Campo para el nombre del tipo de cultivo -->
+        <div class="form-field">
+            <label>Nombre:</label>
+            <InputText class="form-control" @bind-Value="@CropType.Name" />
+            <ValidationMessage For="@(() => CropType.Name)" />
+        </div>
+
+        <!-- Campo para el clima -->
+        <div class="form-field">
+            <label>Clima:</label>
+            <InputText class="form-control" @bind-Value="@CropType.Weather" />
+            <ValidationMessage For="@(() => CropType.Weather)" />
+        </div>
+
+        <!-- Campo para la cantidad de plantas por metro cuadrado -->
+        <div class="form-field">
+            <label>Cantidad de plantas por metro cuadrado:</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PlantQuantityPerSquareMeter" />
+            <ValidationMessage For="@(() => CropType.PlantQuantityPerSquareMeter)" />
+        </div>
+
+        <!-- Campo para el tiempo de cosecha -->
+        <div class="form-field">
+            <label>Tiempo de cosecha (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.HarvestTime" />
+            <ValidationMessage For="@(() => CropType.HarvestTime)" />
+        </div>
+
+        <!-- Campos relacionados con el fertilizante -->
+        <div class="form-field">
+            <label>Id de fertilizante:</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.FertilizerId" />
+            <ValidationMessage For="@(() => CropType.FertilizerId)" />
+        </div>
+        <div class="form-field">
+            <label>Cantidad de fertilizante por planta (gramos):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.FertilizerQuantityPerPlant" />
+            <ValidationMessage For="@(() => CropType.FertilizerQuantityPerPlant)" />
+        </div>
+        <div class="form-field">
+            <label>Frecuencia de fertilizante (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.FertilizerFrequency" />
+            <ValidationMessage For="@(() => CropType.FertilizerFrequency)" />
+        </div>
+
+        <!-- Campos relacionados con el pesticida -->
+        <div class="form-field">
+            <label>Id de pesticida:</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PesticideId" />
+            <ValidationMessage For="@(() => CropType.PesticideId)" />
+        </div>
+        <div class="form-field">
+            <label>Cantidad de pesticida por planta (gramos):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PesticideQuantityPerPlant" />
+            <ValidationMessage For="@(() => CropType.PesticideQuantityPerPlant)" />
+        </div>
+        <div class="form-field">
+            <label>Frecuencia de pesticida (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PesticideFrequency" />
+            <ValidationMessage For="@(() => CropType.PesticideFrequency)" />
+        </div>
+
+        <!-- Botones de acción -->
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+    private EditContext editContext = null!;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(CropType);
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public CropType CropType { get; set; } = new CropType();
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (!editContext.IsModified() || FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonColor = "#3085d6",
+                CancelButtonColor = "#d33",
+                ConfirmButtonText = "Sí, abandonar",
+                CancelButtonText = "No, cancelar"
+            });
+
+        if (result.IsConfirmed)
+        {
+            context.PreventNavigation();
+        }
+    }
+}
+

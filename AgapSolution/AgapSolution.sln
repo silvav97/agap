@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.Backemd", "Agap.Backem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.Frontend", "Agap.Frontend\Agap.Frontend.csproj", "{94627079-5342-4223-8AC8-640772AC797A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agap.UnitTest", "Agap.UnitTest\Agap.UnitTest.csproj", "{0ADE5D4C-66CB-4BAC-B649-10844C948601}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Agap.UnitTest", "Agap.UnitTest\Agap.UnitTest.csproj", "{0ADE5D4C-66CB-4BAC-B649-10844C948601}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
