@@ -1,0 +1,46 @@
+﻿@page "/pesticides/create"
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Nuevo Pesticida</h3>
+
+<PesticideForm @ref="pesticideForm" Pesticide="pesticide" OnValidSubmit="CreateAsync" ReturnAction="Return" />
+
+@code {
+    private Pesticide pesticide = new();
+    private PesticideForm? pesticideForm;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    private async Task CreateAsync()
+    {
+        var response = await repository.PostAsync("/api/pesticides", pesticide);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro creado con éxito.");
+    }
+
+    private void Return()
+    {
+        pesticideForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/pesticides");
+    }
+}
