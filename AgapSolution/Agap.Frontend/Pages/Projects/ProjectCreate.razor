@@ -1,0 +1,47 @@
+﻿@page "/projects/create"
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Nuevo Proyecto</h3>
+
+<ProjectForm @ref="projectForm" Project="project" OnValidSubmit="CreateAsync" ReturnAction="Return" />
+
+@code {
+    private Project project = new();
+    private ProjectForm? projectForm;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    private async Task CreateAsync()
+    {
+        var response = await repository.PostAsync("/api/projects", project);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Proyecto creado con éxito.");
+    }
+
+    private void Return()
+    {
+        projectForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/projects");
+    }
+}

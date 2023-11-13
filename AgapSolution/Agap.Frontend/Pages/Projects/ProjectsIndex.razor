@@ -1,0 +1,224 @@
+﻿@page "/projects"
+@attribute [Authorize(Roles = "Admin")]
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<div class="card">
+    <div class="card-header">
+        <span>
+            <i class="oi oi-list"></i> Proyectos
+            <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Proyecto</a>
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+            <div>
+                <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar proyecto..." @bind-value="Filter" />
+            </div>
+            <div class="mx-1">
+                <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync"><i class="oi oi-layers" /> Filtrar</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync"><i class="oi oi-ban" /> Limpiar</button>
+            </div>
+        </div>
+
+        <GenericList MyList="projects">
+            <NoRecords>
+                <p>Aun no hay proyectos registrados.</p>
+            </NoRecords>
+            <Body>
+                <Pagination CurrentPage="currentPage"
+                            TotalPages="totalPages"
+                            SelectedPage="SelectedPageAsync" />
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>tipoCultivo</th>
+                            <th>Proyecto</th>
+                            <th>Estado</th>
+                            <th>Fecha de inicio</th>
+                            <th>Fecha fin</th>
+                            <th>Municipio</th>
+                            <th>Presupuesto</th>
+                            <th style="width:168px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in projects!)
+                        {
+                            <tr>
+                                <td>@project.CropType?.Name</td>
+                                <td>@project.Name</td>
+                                <td>@project.Status</td>
+                                <td>@project.StartDate</td>
+                                <td>@project.EndDate</td>
+                                <td>@project.Municipality</td>
+                                <td>@project.TotalBudget</td>
+                                <td>
+                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(project.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(project))><i class="oi oi-trash" /> Borrar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
+    </div>
+</div>
+
+@code {
+    private List<Project>? projects;
+    private int currentPage = 1;
+    private int totalPages;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task ShowModalAsync(int id = 0, bool isEdit = false)
+    {
+        IModalReference modalReference;
+
+        if (isEdit)
+        {
+            modalReference = Modal.Show<ProjectEdit>(string.Empty, new ModalParameters().Add("ProjectId", id));
+        }
+        else
+        {
+            modalReference = Modal.Show<ProjectCreate>();
+        }
+
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadAsync();
+        }
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        var ok = await LoadListAsync(page);
+        if (ok)
+        {
+            await LoadPagesAsync();
+        }
+    }
+
+    private async Task<bool> LoadListAsync(int page)
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/projects?page={page}";
+        }
+        else
+        {
+            url = $"api/projects?page={page}&filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<List<Project>>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        projects = response.Response;
+        return true;
+    }
+
+    private async Task LoadPagesAsync()
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/projects/totalPages";
+        }
+        else
+        {
+            url = $"api/projects/totalPages?filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<int>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        totalPages = response.Response;
+    }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+        await LoadAsync(page);
+        await SelectedPageAsync(page);
+    }
+
+    private async Task DeleteAsync(Project project)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Esta seguro que quieres borrar el proyecto: {project.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"api/projects/{project.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+}
