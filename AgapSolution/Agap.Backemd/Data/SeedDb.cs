@@ -36,6 +36,8 @@ namespace Agap.Backemd.Data
             await CheckCropTypesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
+            await CheckProjectsAsync();
+            await CheckCropsAsync();
             await CheckExpensesAsync();
         }
 
@@ -200,24 +202,57 @@ namespace Agap.Backemd.Data
             }
         }
 
+
+        private async Task CheckProjectsAsync()
+        {
+            if (!_context.Projects.Any())
+            {
+                var cropTypeBanano = _context.CropTypes.Single(cropType => cropType.Name == "Banano");
+                var cropTypeMango = _context.CropTypes.Single(cropType => cropType.Name == "Mango");
+                var cropTypeGuayaba = _context.CropTypes.Single(cropType => cropType.Name == "Guayaba");
+                var cropTypeCoco = _context.CropTypes.Single(cropType => cropType.Name == "Coco");
+
+                _context.Projects.Add(new Project { Name = "ProyectoBanano", CropTypeId = cropTypeBanano.Id, CropType = cropTypeBanano, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Medellin", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.InProgress, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Closed, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
+
+                await _context.SaveChangesAsync();                
+            }
+        }
+        private async Task CheckCropsAsync()
+        {
+            if (!_context.Crops.Any())
+            {
+                var user = _context.Users.Single(user => user.Email == "avasquez@yopmail.com");
+                var project1 = _context.Projects.Single(project => project.Name == "ProyectoBanano");
+                var project2 = _context.Projects.Single(project => project.Name == "ProyectoMango");
+
+
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca lenta", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
         private async Task CheckExpensesAsync()
         {
             if (!_context.Expenses.Any())
             {
-                var user = _context.Users.Single(user => user.Email == "avasquez@yopmail.com");
+                var crop = _context.Crops.FirstOrDefault(crop => crop.Name == "Finca feliz");
 
-                _context.Projects.Add(new Project { Name = "Proyecto1", Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Metrallo", TotalBudget = 1.435F });
-                await _context.SaveChangesAsync();
-
-                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = 1, CropTypeId = 1, Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2}) ;
-                await _context.SaveChangesAsync();
-
-
-                _context.Expenses.Add(new Expense { CropId = 1, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.2F, ExpenseDescription = ExpenseType.FertilizerExpense, ExpenseDate = DateTime.Now });
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.8F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
 
                 await _context.SaveChangesAsync();
             }
         }
+
+        
 
         private async Task CheckCountriesAsync()
         {

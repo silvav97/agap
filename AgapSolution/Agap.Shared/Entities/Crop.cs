@@ -18,8 +18,12 @@ namespace Agap.Shared.Entities
         [Display(Name = "Proyecto ID")]
         public int ProjectId { get; set; }
 
-        [Display(Name = "Tipo de Cultivo ID")]
-        public int CropTypeId { get; set; }
+        public Project? Project { get; set; }
+
+        [Display(Name = "Cultivo")]
+        [MaxLength(100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres.")]
+        [Required(ErrorMessage = "El campo {0} es obligatorio.")]
+        public string Name { get; set; } = null!;
 
         [Display(Name = "Estado")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
@@ -43,7 +47,9 @@ namespace Agap.Shared.Entities
         public float AssignedBudget { get; set; }
 
         [Display(Name = "Lista de Gastos")]
-        public List<Expense> ExpenseList { get; set; } = new List<Expense>();
+        //public List<Expense> ExpenseList { get; set; } = new List<Expense>();
+        public ICollection<Expense>? ExpenseList { get; set; }
+
 
         [Display(Name = "Valor de Venta")]
         public float? SaleValue { get; set; }

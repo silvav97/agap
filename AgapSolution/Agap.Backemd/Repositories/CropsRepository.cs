@@ -1,37 +1,36 @@
 ﻿using Agap.Backemd.Data;
+using Agap.Backemd.Helpers;
 using Agap.Shared.DTOs;
 using Agap.Shared.Entities;
-using Agap.Shared.Helpers;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Repositories
 {
-    public class ExpensesRepository : GenericRepository<Expense>, IExpensesRepository
+    public class CropsRepository : GenericRepository<Crop>, ICropsRepository
     {
         private readonly DataContext _context;
 
-        public ExpensesRepository(DataContext context) : base(context)
+        public CropsRepository(DataContext context) : base(context)
         {
             _context = context;
         }
 
-        public override async Task<Response<IEnumerable<Expense>>> GetAsync(PaginationDTO pagination)
+        public override async Task<Response<IEnumerable<Crop>>> GetAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Expenses
-                .Include(expense => expense.Crop)
+            var queryable = _context.Crops
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(crop => crop.Status.ToString().ToLower().Contains(pagination.Filter.ToLower()));
             }
 
-            return new Response<IEnumerable<Expense>>
+            return new Response<IEnumerable<Crop>>
             {
                 WasSuccess = true,
                 Result = await queryable
-                    .OrderBy(expense => expense.ExpenseDescription)
+                    .OrderBy(crop => crop.Status)
                     .Paginate(pagination)
                     .ToListAsync()
             };
@@ -39,11 +38,11 @@ namespace Agap.Backemd.Repositories
 
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Expenses.AsQueryable();
+            var queryable = _context.Crops.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(crop => crop.Status.ToString().ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             double count = await queryable.CountAsync();

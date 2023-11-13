@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Agap.Shared.Entities.Agap.Shared.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,6 +11,11 @@ namespace Agap.Shared.Entities
     public class Project
     {
         public int Id { get; set; }
+
+        [Display(Name = "Tipo de Cultivo ID")]
+        public int CropTypeId { get; set; }
+
+        public CropType? CropType { get; set; }
 
         [Display(Name = "Proyecto")]
         [MaxLength(100, ErrorMessage = "El campo {0} no puede tener más de {1} caracteres.")]
@@ -34,7 +40,9 @@ namespace Agap.Shared.Entities
         public string Municipality { get; set; } = null!;
 
         [Display(Name = "Lista de Cultivos")]
-        public List<Crop> CropList { get; set; } = new List<Crop>();
+        //public List<Crop> CropList { get; set; } = new List<Crop>();
+        public ICollection<Crop>? CropList { get; set; }
+
 
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
         public float TotalBudget { get; set; }

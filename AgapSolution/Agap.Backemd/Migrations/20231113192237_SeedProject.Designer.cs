@@ -4,6 +4,7 @@ using Agap.Backemd.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agap.Backemd.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231113192237_SeedProject")]
+    partial class SeedProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -140,11 +143,6 @@ namespace Agap.Backemd.Migrations
 
                     b.Property<float>("ExpectedExpense")
                         .HasColumnType("real");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
@@ -288,8 +286,6 @@ namespace Agap.Backemd.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CropTypeId");
 
                     b.ToTable("Projects");
                 });
@@ -579,35 +575,20 @@ namespace Agap.Backemd.Migrations
 
             modelBuilder.Entity("Agap.Shared.Entities.Crop", b =>
                 {
-                    b.HasOne("Agap.Shared.Entities.Project", "Project")
+                    b.HasOne("Agap.Shared.Entities.Project", null)
                         .WithMany("CropList")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
                 {
-                    b.HasOne("Agap.Shared.Entities.Crop", "Crop")
+                    b.HasOne("Agap.Shared.Entities.Crop", null)
                         .WithMany("ExpenseList")
                         .HasForeignKey("CropId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Crop");
-                });
-
-            modelBuilder.Entity("Agap.Shared.Entities.Project", b =>
-                {
-                    b.HasOne("Agap.Shared.Entities.Agap.Shared.Entities.CropType", "CropType")
-                        .WithMany()
-                        .HasForeignKey("CropTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CropType");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>

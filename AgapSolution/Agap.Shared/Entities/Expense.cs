@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Agap.Shared.Entities
 {
@@ -17,6 +12,8 @@ namespace Agap.Shared.Entities
         [Display(Name = "Cultivo ID")]
         [Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar un {0}.")]
         public int CropId { get; set; }
+
+        public Crop? Crop { get; set; }
 
         [Display(Name = "Valor del Gasto")]
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]

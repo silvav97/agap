@@ -1,37 +1,37 @@
 ﻿using Agap.Backemd.Data;
+using Agap.Backemd.Helpers;
 using Agap.Shared.DTOs;
 using Agap.Shared.Entities;
-using Agap.Shared.Helpers;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Repositories
 {
-    public class ExpensesRepository : GenericRepository<Expense>, IExpensesRepository
+    public class ProjectsRepository : GenericRepository<Project>, IProjectsRepository
     {
         private readonly DataContext _context;
 
-        public ExpensesRepository(DataContext context) : base(context)
+        public ProjectsRepository(DataContext context) : base(context)
         {
             _context = context;
         }
 
-        public override async Task<Response<IEnumerable<Expense>>> GetAsync(PaginationDTO pagination)
+        public override async Task<Response<IEnumerable<Project>>> GetAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Expenses
-                .Include(expense => expense.Crop)
+            var queryable = _context.Projects
+                .Include(project => project.CropList)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(project => project.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
-            return new Response<IEnumerable<Expense>>
+            return new Response<IEnumerable<Project>>
             {
                 WasSuccess = true,
                 Result = await queryable
-                    .OrderBy(expense => expense.ExpenseDescription)
+                    .OrderBy(x => x.Name)
                     .Paginate(pagination)
                     .ToListAsync()
             };
@@ -39,11 +39,11 @@ namespace Agap.Backemd.Repositories
 
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Expenses.AsQueryable();
+            var queryable = _context.Projects.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(project => project.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             double count = await queryable.CountAsync();
