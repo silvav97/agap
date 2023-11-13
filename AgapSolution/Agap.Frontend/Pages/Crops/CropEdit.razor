@@ -1,0 +1,73 @@
+﻿@page "/crops/edit/{CropId:int}"
+@using Agap.Shared.Entities
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Cultivo</h3>
+
+@if (crop is null)
+{
+    <Loading />
+}
+else
+{
+    <CropForm @ref="cropForm" Crop="crop" OnValidSubmit="SaveAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Crop? crop;
+    private CropForm? cropForm;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public int CropId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await repository.GetAsync<Crop>($"/api/crops/{CropId}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Return();
+            }
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        crop = response.Response;
+    }
+
+    private async Task SaveAsync()
+    {
+        var response = await repository.PutAsync($"/api/crops", crop);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Cambios en el cultivo guardados con éxito.");
+    }
+
+    private void Return()
+    {
+        cropForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/crops");
+    }
+}
