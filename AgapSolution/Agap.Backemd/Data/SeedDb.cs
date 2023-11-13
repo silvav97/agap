@@ -1,9 +1,11 @@
 ﻿using Agap.Backemd.Helpers;
 using Agap.Backemd.Services;
 using Agap.Shared.Entities;
+using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Runtime.InteropServices;
 
 namespace Agap.Backemd.Data
@@ -14,22 +16,55 @@ namespace Agap.Backemd.Data
         private readonly IApiService _apiService;
         private readonly IUserHelper _userHelper;
         private readonly IFileStorage _fileStorage;
+        private readonly IRuntimeInformationWrapper _runtimeInformationWrapper;
 
-        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper, IFileStorage fileStorage)
+        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper, IFileStorage fileStorage, IRuntimeInformationWrapper runtimeInformationWrapper)
         {
             _context = context;
             _apiService = apiService;
             _userHelper = userHelper;
             _fileStorage = fileStorage;
+            _runtimeInformationWrapper = runtimeInformationWrapper;
         }
 
         public async Task SeedAsync()
         {
             await _context.Database.EnsureCreatedAsync();
-            await CheckCountriesAsync();
+            await CheckCountriesAsync2();
             await CheckFertilizersAsync();
+            await CheckPesticidesAsync();
+            await CheckCropTypesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
+            await CheckProjectsAsync();
+            await CheckCropsAsync();
+            await CheckExpensesAsync();
+        }
+
+        private async Task CheckCountriesAsync2()
+        {
+            if (!_context.Countries.Any())
+            {
+                _context.Countries.Add(new Country
+                {
+                    Name = "Colombia",
+                    States = new List<State>
+                    {
+                        new State
+                        {
+                            Name = "Antioquia",
+                            Cities = new List<City>
+                            {
+                                new City
+                                {
+                                    Name = "Medellín"
+                                }
+                            }
+                        }
+                    }
+                });
+                await _context.SaveChangesAsync();
+            }
         }
 
         private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, string image, UserType userType)
@@ -44,7 +79,7 @@ namespace Agap.Backemd.Data
                 }
 
                 string filePath;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (_runtimeInformationWrapper.IsOSPlatform(OSPlatform.Windows))
                 {
                     filePath = $"{Environment.CurrentDirectory}\\Images\\users\\{image}";
                 }
@@ -52,7 +87,6 @@ namespace Agap.Backemd.Data
                 {
                     filePath = $"{Environment.CurrentDirectory}/Images/users/{image}";
                 }
-
                 var fileBytes = File.ReadAllBytes(filePath);
                 var imagePath = await _fileStorage.SaveFileAsync(fileBytes, "jpg", "users");
 
@@ -102,19 +136,123 @@ namespace Agap.Backemd.Data
                 _context.Fertilizers.Add(new Fertilizer { Name = "FERTILIZANTE 25-4-24", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Fertilizers.Add(new Fertilizer { Name = "AGRIMINS TOTTAL INICIO 11-22-5", Brand = "Colinagro", PricePerGram = 4.30F });
 
-                /* _context.Countries.Add(new Country { Name = "Colombia" });
-                 await _context.SaveChangesAsync();
-
-                 var countryId = _context.Countries.Single(c => c.Name == "Colombia").Id; // Obtener el Id auto-generado
-                 _context.States.Add(new State { Name = "Antioquia", CountryId = countryId });
-                 await _context.SaveChangesAsync();
-
-                 var stateId = _context.States.Single(s => s.Name == "Antioquia").Id;
-                 _context.Cities.Add(new City { Name = "Medellín", StateId = stateId });
-                */
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
             }
         }
+
+        private async Task CheckCropTypesAsync()
+        {
+            if (!_context.CropTypes.Any())
+            {
+                var cropTypeNames = new List<string>
+        {
+            "Banano",
+            "Mango",
+            "Guayaba",
+            "Ruby Corn",
+            "Piña",
+            "Carambolo",
+            "Coco",
+            "Papaya",
+            "Pitaya",
+            "Liches"
+        };
+                var fertilizer = _context.Fertilizers.Single(f => f.Name == "Tierra De Diatomeas Diatomita");
+                var pesticide = _context.Pesticides.Single(p => p.Name == "Pesticida 11");
+
+                foreach (var name in cropTypeNames)
+                {
+                    _context.CropTypes.Add(new CropType
+                    {
+                        Weather = "Caliente",
+                        Name = name,
+                        PlantQuantityPerSquareMeter = new Random().Next(1, 100),
+                        HarvestTime = new Random().Next(1, 100),
+                        FertilizerId = fertilizer.Id,
+                        FertilizerQuantityPerPlant = new Random().Next(1, 10),
+                        FertilizerFrequency = new Random().Next(1, 100),
+                        PesticideId = pesticide.Id,
+                        PesticideQuantityPerPlant = new Random().Next(1, 10),
+                        PesticideFrequency = new Random().Next(1, 100),
+                        Fertilizer = fertilizer,
+                        Pesticide = pesticide
+                    });
+                }
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckPesticidesAsync()
+        {
+            if (!_context.Pesticides.Any())
+            {
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 1", Brand = "Diatomeas Colombia", PricePerGram = 3.60F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 2", Brand = "Agro tropico", PricePerGram = 3.23F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 11", Brand = "Campor Verde", PricePerGram = 1.25F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 12", Brand = "Campofert", PricePerGram = 18.58F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 111", Brand = "Efitec", PricePerGram = 23.51F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida 112", Brand = "Diatomeas Colombia", PricePerGram = 2.40F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida x", Brand = "Copralab", PricePerGram = 140.00F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xx", Brand = "BioPotent", PricePerGram = 2.12F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxxx", Brand = "Colinagro", PricePerGram = 4.30F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        private async Task CheckProjectsAsync()
+        {
+            if (!_context.Projects.Any())
+            {
+                var cropTypeBanano = _context.CropTypes.Single(cropType => cropType.Name == "Banano");
+                var cropTypeMango = _context.CropTypes.Single(cropType => cropType.Name == "Mango");
+                var cropTypeGuayaba = _context.CropTypes.Single(cropType => cropType.Name == "Guayaba");
+                var cropTypeCoco = _context.CropTypes.Single(cropType => cropType.Name == "Coco");
+
+                _context.Projects.Add(new Project { Name = "ProyectoBanano", CropTypeId = cropTypeBanano.Id, CropType = cropTypeBanano, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Medellin", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.InProgress, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Closed, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
+
+                await _context.SaveChangesAsync();                
+            }
+        }
+        private async Task CheckCropsAsync()
+        {
+            if (!_context.Crops.Any())
+            {
+                var user = _context.Users.Single(user => user.Email == "avasquez@yopmail.com");
+                var project1 = _context.Projects.Single(project => project.Name == "ProyectoBanano");
+                var project2 = _context.Projects.Single(project => project.Name == "ProyectoMango");
+
+
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca lenta", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        private async Task CheckExpensesAsync()
+        {
+            if (!_context.Expenses.Any())
+            {
+                var crop = _context.Crops.FirstOrDefault(crop => crop.Name == "Finca feliz");
+
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.2F, ExpenseDescription = ExpenseType.FertilizerExpense, ExpenseDate = DateTime.Now });
+                _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.8F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        
 
         private async Task CheckCountriesAsync()
         {

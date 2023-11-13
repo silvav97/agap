@@ -22,6 +22,60 @@ namespace Agap.Backemd.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Agap.Shared.Entities.Agap.Shared.Entities.CropType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FertilizerFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FertilizerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FertilizerQuantityPerPlant")
+                        .HasColumnType("int");
+
+                    b.Property<int>("HarvestTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("PesticideFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PesticideId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PesticideQuantityPerPlant")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlantQuantityPerSquareMeter")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Weather")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FertilizerId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("PesticideId");
+
+                    b.ToTable("CropTypes");
+                });
+
             modelBuilder.Entity("Agap.Shared.Entities.City", b =>
                 {
                     b.Property<int>("Id")
@@ -67,6 +121,81 @@ namespace Agap.Backemd.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("Agap.Shared.Entities.Crop", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Area")
+                        .HasColumnType("int");
+
+                    b.Property<float>("AssignedBudget")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("ExpectedExpense")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<float?>("SaleValue")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Crops");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CropId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExpenseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExpenseDescription")
+                        .HasColumnType("int");
+
+                    b.Property<float>("ExpenseValue")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CropId");
+
+                    b.ToTable("Expenses");
+                });
+
             modelBuilder.Entity("Agap.Shared.Entities.Fertilizer", b =>
                 {
                     b.Property<int>("Id")
@@ -94,6 +223,75 @@ namespace Agap.Backemd.Migrations
                         .IsUnique();
 
                     b.ToTable("Fertilizers");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Pesticide", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<float>("PricePerGram")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Brand")
+                        .IsUnique();
+
+                    b.ToTable("Pesticides");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CropTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Municipality")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<float>("TotalBudget")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CropTypeId");
+
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>
@@ -349,15 +547,67 @@ namespace Agap.Backemd.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Agap.Shared.Entities.Agap.Shared.Entities.CropType", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Fertilizer", "Fertilizer")
+                        .WithMany()
+                        .HasForeignKey("FertilizerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Agap.Shared.Entities.Pesticide", "Pesticide")
+                        .WithMany()
+                        .HasForeignKey("PesticideId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Fertilizer");
+
+                    b.Navigation("Pesticide");
+                });
+
             modelBuilder.Entity("Agap.Shared.Entities.City", b =>
                 {
                     b.HasOne("Agap.Shared.Entities.State", "State")
                         .WithMany("Cities")
                         .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("State");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Crop", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Project", "Project")
+                        .WithMany("CropList")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Crop", "Crop")
+                        .WithMany("ExpenseList")
+                        .HasForeignKey("CropId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Crop");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Project", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Agap.Shared.Entities.CropType", "CropType")
+                        .WithMany()
+                        .HasForeignKey("CropTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CropType");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>
@@ -365,7 +615,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Agap.Shared.Entities.Country", "Country")
                         .WithMany("States")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Country");
@@ -376,7 +626,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Agap.Shared.Entities.City", "City")
                         .WithMany("Users")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("City");
@@ -387,7 +637,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -396,7 +646,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Agap.Shared.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -405,7 +655,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Agap.Shared.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -414,13 +664,13 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Agap.Shared.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -429,7 +679,7 @@ namespace Agap.Backemd.Migrations
                     b.HasOne("Agap.Shared.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -441,6 +691,16 @@ namespace Agap.Backemd.Migrations
             modelBuilder.Entity("Agap.Shared.Entities.Country", b =>
                 {
                     b.Navigation("States");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Crop", b =>
+                {
+                    b.Navigation("ExpenseList");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.Project", b =>
+                {
+                    b.Navigation("CropList");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>

@@ -1,6 +1,5 @@
 using Agap.Backemd.Data;
 using Agap.Backemd.Helpers;
-using Agap.Backemd.Interfaces;
 using Agap.Backemd.Repositories;
 using Agap.Backemd.Services;
 using Agap.Backemd.UnitsOfWork;
@@ -55,10 +54,41 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer("name=LocalConnection"));
+builder.Services.AddScoped<IMailHelper, MailHelper>();
+builder.Services.AddScoped<ISmtpClient, SmtpClientWrapper>();
+builder.Services.AddScoped<HttpClient>();
+builder.Services.AddScoped<IBlobContainerClientFactory, BlobContainerClientFactory>();
+builder.Services.AddScoped<IRuntimeInformationWrapper, RuntimeInformationWrapper>();
+
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IApiService, ApiService>();
+
+builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
+builder.Services.AddScoped<ICropsRepository, CropsRepository>();
+builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
+builder.Services.AddScoped<IPesticidesRepository, PesticidesRepository>();
+builder.Services.AddScoped<IFertilizersRepository, FertilizersRepository>();
+builder.Services.AddScoped<ICropTypesRepository, CropTypesRepository>();
+builder.Services.AddScoped<ICitiesRepository, CitiesRepository>();
+builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
+builder.Services.AddScoped<IStatesRepository, StatesRepository>();
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+
+builder.Services.AddScoped<IProjectsUnitOfWork, ProjectsUnitOfWork>();
+builder.Services.AddScoped<ICropsUnitOfWork, CropsUnitOfWork>();
+builder.Services.AddScoped<IExpensesUnitOfWork, ExpensesUnitOfWork>();
+builder.Services.AddScoped<IPesticidesUnitOfWork, PesticidesUnitOfWork>();
+builder.Services.AddScoped<IFertilizersUnitOfWork, FertilizersUnitOfWork>();
+builder.Services.AddScoped<ICropTypesUnitOfWork, CropTypesUnitOfWork>();
+builder.Services.AddScoped<ICitiesUnitOfWork, CitiesUnitOfWork>();
+builder.Services.AddScoped<ICountriesUnitOfWork, CountriesUnitOfWork>();
+builder.Services.AddScoped<IStatesUnitOfWork, StatesUnitOfWork>();
+builder.Services.AddScoped<IUsersUnitOfWork, UsersUnitOfWork>();
+
 builder.Services.AddTransient<SeedDb>();
+builder.Services.AddScoped<IApiService, ApiService>();
+builder.Services.AddScoped<IUserHelper, UserHelper>();
+builder.Services.AddScoped<IFileStorage, FileStorage>();
 
 builder.Services.AddIdentity<User, IdentityRole>(x =>
 {
@@ -89,9 +119,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwtKey"]!)),
         ClockSkew = TimeSpan.Zero
     });
-
-builder.Services.AddScoped<IFileStorage, FileStorage>();
-builder.Services.AddScoped<IMailHelper, MailHelper>();
 
 var app = builder.Build();
 SeedData(app);

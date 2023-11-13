@@ -1,0 +1,231 @@
+﻿@page "/croptypes"
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@attribute [Authorize(Roles = "Admin")]
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<div class="card">
+    <div class="card-header">
+        <span>
+            <i class="oi oi-list"></i> Tipos de Cultivo
+            <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Tipo de Cultivo</a>
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+            <div>
+                <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar tipo de cultivo..." @bind-value="Filter" />
+            </div>
+            <div class="mx-1">
+                <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync"><i class="oi oi-layers" /> Filtrar</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync"><i class="oi oi-ban" /> Limpiar</button>
+            </div>
+        </div>
+
+        <GenericList MyList="cropTypes">
+            <NoRecords>
+                <p>Aun no hay tipos de cultivo registrados.</p>
+            </NoRecords>
+            <Body>
+                <Pagination CurrentPage="currentPage"
+                            TotalPages="totalPages"
+                            SelectedPage="SelectedPageAsync" />
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Clima</th>
+                            <th>Cant. Plantas/m²</th>
+                            <th>Tiempo de Cosecha (días)</th>
+                            <th>Fertilizante (ID)</th>
+                            <th>Cant. Fertilizante por Planta</th>
+                            <th>Frecuencia Fertilizante (días)</th>
+                            <th>Pesticida (ID)</th>
+                            <th>Cant. Pesticida por Planta</th>
+                            <th>Frecuencia Pesticida (días)</th>
+                            <th style="width:168px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cropType in cropTypes!)
+                        {
+                            <tr>
+                                <td>@cropType.Name</td>
+                                <td>@cropType.Weather</td>
+                                <td>@cropType.PlantQuantityPerSquareMeter</td>
+                                <td>@cropType.HarvestTime</td>
+                                <td>@cropType.FertilizerId</td>
+                                <td>@cropType.FertilizerQuantityPerPlant</td>
+                                <td>@cropType.FertilizerFrequency</td>
+                                <td>@cropType.PesticideId</td>
+                                <td>@cropType.PesticideQuantityPerPlant</td>
+                                <td>@cropType.PesticideFrequency</td>
+                                <td>
+                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(cropType.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(cropType))><i class="oi oi-trash" /> Borrar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
+    </div>
+</div>
+
+@code {
+    private List<CropType>? cropTypes;
+    private int currentPage = 1;
+    private int totalPages;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task ShowModalAsync(int id = 0, bool isEdit = false)
+    {
+        IModalReference modalReference;
+
+        if (isEdit)
+        {
+            modalReference = Modal.Show<CropTypeEdit>(string.Empty, new ModalParameters().Add("CropTypeId", id));
+        }
+        else
+        {
+            modalReference = Modal.Show<CropTypeCreate>();
+        }
+
+        var result = await modalReference.Result;
+        if (result.Confirmed)
+        {
+            await LoadAsync();
+        }
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        var ok = await LoadListAsync(page);
+        if (ok)
+        {
+            await LoadPagesAsync();
+        }
+    }
+
+    private async Task<bool> LoadListAsync(int page)
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/croptypes?page={page}";
+        }
+        else
+        {
+            url = $"api/croptypes?page={page}&filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<List<CropType>>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        cropTypes = response.Response;
+        return true;
+    }
+
+    private async Task LoadPagesAsync()
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/croptypes/totalPages";
+        }
+        else
+        {
+            url = $"api/croptypes/totalPages?filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<int>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        totalPages = response.Response;
+    }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+        await LoadAsync(page);
+        await SelectedPageAsync(page);
+    }
+
+    private async Task DeleteAsync(CropType cropType)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Esta seguro que quieres borrar el tipo de cultivo: {cropType.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = string.IsNullOrEmpty(result.Value);
+        if (confirm)
+        {
+            return;
+        }
+
+        var response = await repository.DeleteAsync($"api/croptypes/{cropType.Id}");
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await LoadAsync();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = false,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Tipo de cultivo borrado con éxito.");
+    }
+}

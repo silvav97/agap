@@ -1,5 +1,6 @@
 ﻿using Agap.Backemd.Data;
-using Agap.Backemd.Interfaces;
+using Agap.Shared.DTOs;
+using Agap.Shared.Helpers;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,7 @@ namespace Agap.Backemd.Repositories
             _entity = context.Set<T>();
         }
 
-        public async Task<Response<T>> AddAsync(T entity)
+        public virtual async Task<Response<T>> AddAsync(T entity)
         {
             _context.Add(entity);
             try
@@ -28,9 +29,9 @@ namespace Agap.Backemd.Repositories
                     Result = entity
                 };
             }
-            catch (DbUpdateException dbUpdateException)
+            catch (DbUpdateException)
             {
-                return DbUpdateExceptionResponse(dbUpdateException);
+                return DbUpdateExceptionResponse();
             }
             catch (Exception exception)
             {
@@ -38,28 +39,80 @@ namespace Agap.Backemd.Repositories
             }
         }
 
-        public async Task DeleteAsync(int id)
+        public virtual async Task<Response<T>> DeleteAsync(int id)
+        {
+            var row = await _entity.FindAsync(id);
+            if (row == null)
+            {
+                return new Response<T>
+                {
+                    WasSuccess = false,
+                    Message = "Registro no encontrado"
+                };
+            }
+
+            try
+            {
+                _entity.Remove(row);
+                await _context.SaveChangesAsync();
+                return new Response<T>
+                {
+                    WasSuccess = true,
+                };
+            }
+            catch
+            {
+                return new Response<T>
+                {
+                    WasSuccess = false,
+                    Message = "No se puede borrar, porque tiene registros relacionados"
+                };
+            }
+        }
+
+        public virtual async Task<Response<T>> GetAsync(int id)
         {
             var row = await _entity.FindAsync(id);
             if (row != null)
             {
-                _entity.Remove(row);
-                await _context.SaveChangesAsync();
+                return new Response<T>
+                {
+                    WasSuccess = true,
+                    Result = row
+                };
             }
+            return new Response<T>
+            {
+                WasSuccess = false,
+                Message = "Registro no encontrado"
+            };
         }
 
-        public async Task<T> GetAsync(int id)
+        public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination)
         {
-            var row = await _entity.FindAsync(id);
-            return row!;
+            var queryable = _entity.AsQueryable();
+            return new Response<IEnumerable<T>>
+            {
+                WasSuccess = true,
+                Result = await queryable
+                    .Paginate(pagination)
+                    .ToListAsync()
+            };
         }
 
-        public async Task<IEnumerable<T>> GetAsync()
+        public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
-            return await _entity.ToListAsync();
+            var queryable = _entity.AsQueryable();
+            double count = await queryable.CountAsync();
+            int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
+            return new Response<int>
+            {
+                WasSuccess = true,
+                Result = totalPages
+            };
         }
 
-        public async Task<Response<T>> UpdateAsync(T entity)
+        public virtual async Task<Response<T>> UpdateAsync(T entity)
         {
             try
             {
@@ -71,9 +124,9 @@ namespace Agap.Backemd.Repositories
                     Result = entity
                 };
             }
-            catch (DbUpdateException dbUpdateException)
+            catch (DbUpdateException)
             {
-                return DbUpdateExceptionResponse(dbUpdateException);
+                return DbUpdateExceptionResponse();
             }
             catch (Exception exception)
             {
@@ -90,24 +143,13 @@ namespace Agap.Backemd.Repositories
             };
         }
 
-        private Response<T> DbUpdateExceptionResponse(DbUpdateException dbUpdateException)
+        private Response<T> DbUpdateExceptionResponse()
         {
-            if (dbUpdateException.InnerException!.Message.Contains("duplicate"))
+            return new Response<T>
             {
-                return new Response<T>
-                {
-                    WasSuccess = false,
-                    Message = "Ya existe el registro que estas intentando crear."
-                };
-            }
-            else
-            {
-                return new Response<T>
-                {
-                    WasSuccess = false,
-                    Message = dbUpdateException.InnerException.Message
-                };
-            }
+                WasSuccess = false,
+                Message = "Ya existe el registro que estas intentando crear."
+            };
         }
     }
 }

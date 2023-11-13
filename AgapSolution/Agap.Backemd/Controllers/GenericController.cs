@@ -1,85 +1,86 @@
-﻿using Agap.Backemd.Data;
-using Agap.Backemd.Interfaces;
+﻿using Agap.Backemd.UnitsOfWork;
 using Agap.Shared.DTOs;
-using Agap.Shared.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Controllers
 {
     public class GenericController<T> : Controller where T : class
     {
         private readonly IGenericUnitOfWork<T> _unitOfWork;
-        private readonly DataContext _context;
-        private readonly DbSet<T> _entity;
 
-        public GenericController(IGenericUnitOfWork<T> unitOfWork, DataContext context)
+        public GenericController(IGenericUnitOfWork<T> unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _context = context;
-            _entity = _context.Set<T>();
         }
 
         [HttpGet]
         public virtual async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _entity.AsQueryable();
-            return Ok(await queryable
-                .Paginate(pagination)
-                .ToListAsync());
+            var action = await _unitOfWork.GetAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("totalPages")]
-        public virtual async Task<ActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
+        public virtual async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _entity.AsQueryable();
-            double count = await queryable.CountAsync();
-            double totalPages = Math.Ceiling(count / pagination.RecordsNumber);
-            return Ok(totalPages);
+            var action = await _unitOfWork.GetTotalPagesAsync(pagination);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
         }
 
         [HttpGet("{id}")]
         public virtual async Task<IActionResult> GetAsync(int id)
         {
-            var row = await _unitOfWork.GetAsync(id);
-            if (row == null)
+            var action = await _unitOfWork.GetAsync(id);
+            if (action.WasSuccess)
             {
-                return NotFound();
+                return Ok(action.Result);
             }
-            return Ok(row);
+            return NotFound();
         }
 
         [HttpPost]
         public virtual async Task<IActionResult> PostAsync(T model)
         {
-            var result = await _unitOfWork.AddAsync(model);
-            if (result.WasSuccess)
+            var action = await _unitOfWork.AddAsync(model);
+            if (action.WasSuccess)
             {
-                return Ok(result.Result);
+                return Ok(action.Result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(action.Message);
         }
 
         [HttpPut]
         public virtual async Task<IActionResult> PutAsync(T model)
         {
-            var result = await _unitOfWork.UpdateAsync(model);
-            if (result.WasSuccess)
+            var action = await _unitOfWork.UpdateAsync(model);
+            if (action.WasSuccess)
             {
-                return Ok(result.Result);
+                return Ok(action.Result);
             }
-            return BadRequest(result.Message);
+            return BadRequest(action.Message);
         }
 
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> DeleteAsync(int id)
         {
-            var row = await _unitOfWork.GetAsync(id);
-            if (row == null)
+            var action = await _unitOfWork.GetAsync(id);
+            if (!action.WasSuccess)
             {
                 return NotFound();
             }
-            await _unitOfWork.DeleteAsync(id);
+            action = await _unitOfWork.DeleteAsync(id);
+            if (!action.WasSuccess)
+            {
+                return BadRequest(action.Message);
+            }
             return NoContent();
         }
     }

@@ -1,8 +1,7 @@
-﻿using Agap.Backemd.Data;
+﻿using Agap.Backemd.UnitsOfWork;
 using Agap.Shared.DTOs;
 using Agap.Shared.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Helpers
 {
@@ -10,36 +9,25 @@ namespace Agap.Backemd.Helpers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly DataContext _context;
+        private readonly IUsersUnitOfWork _userUnitOfWork;
         private readonly SignInManager<User> _signInManager;
 
-        public UserHelper(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, DataContext context, SignInManager<User> signInManager)
+        public UserHelper(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IUsersUnitOfWork userUnitOfWork, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _context = context;
+            _userUnitOfWork = userUnitOfWork;
             _signInManager = signInManager;
         }
 
-        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        public async Task<SignInResult> LoginAsync(LoginDTO model)
         {
-            return await _userManager.GeneratePasswordResetTokenAsync(user);
+            return await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
         }
 
-        public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
+        public async Task LogoutAsync()
         {
-            return await _userManager.ResetPasswordAsync(user, token, password);
-        }
-
-
-        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
-        {
-            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
-        }
-
-        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
-        {
-            return await _userManager.ConfirmEmailAsync(user, token);
+            await _signInManager.SignOutAsync();
         }
 
         public async Task<IdentityResult> AddUserAsync(User user, string password)
@@ -50,11 +38,6 @@ namespace Agap.Backemd.Helpers
         public async Task AddUserToRoleAsync(User user, string roleName)
         {
             await _userManager.AddToRoleAsync(user, roleName);
-        }
-
-        public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
-        {
-            return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         }
 
         public async Task CheckRoleAsync(string roleName)
@@ -71,22 +54,8 @@ namespace Agap.Backemd.Helpers
 
         public async Task<User> GetUserAsync(string email)
         {
-            var user = await _context.Users
-                .Include(u => u.City!)
-                .ThenInclude(c => c.State!)
-                .ThenInclude(s => s.Country)
-                .FirstOrDefaultAsync(x => x.Email == email);
-            return user!;
-        }
-
-        public async Task<User> GetUserAsync(Guid userId)
-        {
-            var user = await _context.Users
-                .Include(u => u.City!)
-                .ThenInclude(c => c.State!)
-                .ThenInclude(s => s.Country)
-                .FirstOrDefaultAsync(x => x.Id == userId.ToString());
-            return user!;
+            var action = await _userUnitOfWork.GetAsync(email);
+            return action.Result!;
         }
 
         public async Task<bool> IsUserInRoleAsync(User user, string roleName)
@@ -94,19 +63,40 @@ namespace Agap.Backemd.Helpers
             return await _userManager.IsInRoleAsync(user, roleName);
         }
 
-        public async Task<SignInResult> LoginAsync(LoginDTO model)
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
         {
-            return await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-        }
-
-        public async Task LogoutAsync()
-        {
-            await _signInManager.SignOutAsync();
+            return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         }
 
         public async Task<IdentityResult> UpdateUserAsync(User user)
         {
             return await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<User> GetUserAsync(Guid userId)
+        {
+            var action = await _userUnitOfWork.GetAsync(userId);
+            return action.Result!;
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, password);
         }
     }
 }
