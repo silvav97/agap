@@ -19,6 +19,8 @@ namespace Agap.Backemd.Repositories
         public override async Task<Response<IEnumerable<Crop>>> GetAsync(PaginationDTO pagination)
         {
             var queryable = _context.Crops
+                .Include(crop => crop.Project)
+                .Include(crop => crop.User)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))

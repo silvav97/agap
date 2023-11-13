@@ -11,9 +11,10 @@ namespace Agap.Shared.Entities
         public int Id { get; set; }
 
         [Display(Name = "Usuario ID")]
-        //[Range(1, int.MaxValue, ErrorMessage = "Debes seleccionar un {0}.")]
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public string UserId { get; set; } = null!;
+
+        public User? User { get; set; }
 
         [Display(Name = "Proyecto ID")]
         public int ProjectId { get; set; }
