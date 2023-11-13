@@ -164,7 +164,7 @@ namespace Agap.Backemd.Data
                 {
                     _context.CropTypes.Add(new CropType
                     {
-                        Weather = "Temperate",
+                        Weather = "Caliente",
                         Name = name,
                         PlantQuantityPerSquareMeter = new Random().Next(1, 100),
                         HarvestTime = new Random().Next(1, 100),

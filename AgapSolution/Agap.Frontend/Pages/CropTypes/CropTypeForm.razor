@@ -1,0 +1,202 @@
+﻿@using Agap.Shared.Entities
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+
+@inject SweetAlertService sweetAlertService
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <!-- Campo para el nombre del tipo de cultivo -->
+        <div class="form-field">
+            <label>Nombre:</label>
+            <InputText class="form-control" @bind-Value="@CropType.Name" />
+            <ValidationMessage For="@(() => CropType.Name)" />
+        </div>
+
+        <!-- Campo para el clima -->
+        <div class="form-field">
+            <label>Clima:</label>
+            <InputText class="form-control" @bind-Value="@CropType.Weather" />
+            <ValidationMessage For="@(() => CropType.Weather)" />
+        </div>
+
+        <!-- Campo para la cantidad de plantas por metro cuadrado -->
+        <div class="form-field">
+            <label>Cantidad de plantas por metro cuadrado:</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PlantQuantityPerSquareMeter" />
+            <ValidationMessage For="@(() => CropType.PlantQuantityPerSquareMeter)" />
+        </div>
+
+        <!-- Campo para el tiempo de cosecha -->
+        <div class="form-field">
+            <label>Tiempo de cosecha (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.HarvestTime" />
+            <ValidationMessage For="@(() => CropType.HarvestTime)" />
+        </div>
+
+        <div class="form-field">
+            <label>Cantidad de fertilizante por planta (gramos):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.FertilizerQuantityPerPlant" />
+            <ValidationMessage For="@(() => CropType.FertilizerQuantityPerPlant)" />
+        </div>
+        <div class="form-field">
+            <label>Frecuencia de fertilizante (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.FertilizerFrequency" />
+            <ValidationMessage For="@(() => CropType.FertilizerFrequency)" />
+        </div>
+
+        <div class="form-field">
+            <label>Cantidad de pesticida por planta (gramos):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PesticideQuantityPerPlant" />
+            <ValidationMessage For="@(() => CropType.PesticideQuantityPerPlant)" />
+        </div>
+        <div class="form-field">
+            <label>Frecuencia de pesticida (días):</label>
+            <InputNumber class="form-control" @bind-Value="@CropType.PesticideFrequency" />
+            <ValidationMessage For="@(() => CropType.PesticideFrequency)" />
+        </div>
+
+        <!-- Campo para el FertilizerId -->
+        <div class="form-field">
+            <label>Fertilizante:</label>
+            <Select class="form-control" value="@SelectedFertilizerId" @onchange="OnFertilizerChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var fertilizer in fertilizers)
+                {
+                    <option value="@fertilizer.Id">@fertilizer.Name</option>
+                }
+            </Select>
+        </div>
+
+        <!-- Campo para el PesticideId -->
+        <div class="form-field">
+            <label>Pesticida:</label>
+            <Select class="form-control" value="@SelectedPesticideId" @onchange="OnPesticideChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var pesticide in pesticides)
+                {
+                    <option value="@pesticide.Id">@pesticide.Name</option>
+                }
+            </Select>
+        </div>
+
+        <!-- Botones de acción -->
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+    private EditContext editContext = null!;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(CropType);
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public CropType CropType { get; set; } = new CropType();
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    // Agregamos dos propiedades para almacenar los ID seleccionados
+    public int SelectedFertilizerId { get; set; }
+    public int SelectedPesticideId { get; set; }
+
+    private List<Fertilizer> fertilizers = new List<Fertilizer>();
+    private List<Pesticide> pesticides = new List<Pesticide>();
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFertilizersAsync();
+        await LoadPesticidesAsync();
+    }
+
+    private async Task LoadFertilizersAsync()
+    {
+        loading = true;
+        var response = await repository.GetAsync<List<Fertilizer>>("api/fertilizers");
+        if (!response.Error)
+        {
+            fertilizers = response.Response;
+        }
+       
+        loading = false;
+    }
+
+    private async Task LoadPesticidesAsync()
+    {
+        loading = true;
+        var response = await repository.GetAsync<List<Pesticide>>("api/pesticides");
+        if (!response.Error)
+        {
+            pesticides = response.Response;
+        }
+       
+        loading = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        SelectedFertilizerId = CropType.FertilizerId;
+        SelectedPesticideId = CropType.PesticideId;
+    }
+
+    // Métodos para manejar el cambio de selección
+    private void OnFertilizerChanged(ChangeEventArgs e)
+    {
+        SelectedFertilizerId = Convert.ToInt32(e.Value);
+        CropType.FertilizerId = SelectedFertilizerId;
+    }
+
+    private void OnPesticideChanged(ChangeEventArgs e)
+    {
+        SelectedPesticideId = Convert.ToInt32(e.Value);
+        CropType.PesticideId = SelectedPesticideId;
+    }
+
+
+    private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (!editContext.IsModified() || FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonColor = "#3085d6",
+                CancelButtonColor = "#d33",
+                ConfirmButtonText = "Sí, abandonar",
+                CancelButtonText = "No, cancelar"
+            });
+
+        if (result.IsConfirmed)
+        {
+            context.PreventNavigation();
+        }
+    }
+}
+
