@@ -47,7 +47,7 @@
                         @foreach (var project in projects!)
                         {
                             <tr>
-                                <td>@project.Name</td>
+                                <td><a href="/projects/details/@project.Id"> @project.Name</a></td>
                                 <td>@project.CropType?.Name</td>
                                 <td>@project.Status</td>
                                 <td>@project.StartDate</td>

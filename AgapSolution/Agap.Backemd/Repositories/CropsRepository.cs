@@ -55,5 +55,27 @@ namespace Agap.Backemd.Repositories
                 Result = totalPages
             };
         }
+
+        public override async Task<Response<Crop>> GetAsync(int id)
+        {
+            var crop = await _context.Crops
+                 //.Include(crop => crop.ExpenseList)
+                 .FirstOrDefaultAsync(crop => crop.ProjectId == id);
+
+            if (crop == null)
+            {
+                return new Response<Crop>
+                {
+                    WasSuccess = false,
+                    Message = "Cultivo no existe"
+                };
+            }
+
+            return new Response<Crop>
+            {
+                WasSuccess = true,
+                Result = crop
+            };
+        }
     }
 }
