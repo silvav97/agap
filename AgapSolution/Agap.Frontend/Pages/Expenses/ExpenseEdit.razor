@@ -1,0 +1,73 @@
+﻿@page "/expenses/edit/{ExpenseId:int}"
+@using Agap.Shared.Entities
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Gasto</h3>
+
+@if (expense is null)
+{
+    <Loading />
+}
+else
+{
+    <ExpenseForm @ref="expenseForm" Expense="expense" OnValidSubmit="SaveAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Expense? expense;
+    private ExpenseForm? expenseForm;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public int ExpenseId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await repository.GetAsync<Expense>($"/api/expenses/{ExpenseId}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                Return();
+            }
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        expense = response.Response;
+    }
+
+    private async Task SaveAsync()
+    {
+        var response = await repository.PutAsync($"/api/expenses", expense);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Cambios en el gasto guardados con éxito.");
+    }
+
+    private void Return()
+    {
+        expenseForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/expenses");
+    }
+}

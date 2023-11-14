@@ -9,7 +9,7 @@
 <NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
 
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
-  <!--  <DataAnnotationsValidator /> -->
+    <DataAnnotationsValidator /> 
     <div class="mb-3">
         <!-- Campo para el nombre del cultivo -->
         <div class="form-field">
@@ -29,13 +29,15 @@
             </Select>
         </div>
 
-        <!-- Campo para el estado del cultivo -->
+        <!-- Campo para la descripción del gasto -->
         <div class="form-field">
             <label>Estado:</label>
-            <InputSelect class="form-control" @bind-Value="@Crop.Status">
-                <option value=0>Creado</option>
-                <option value=1>En progreso</option>
-                <option value=2>Cerrado</option>
+            <InputSelect class="form-control" @bind-Value="Crop.Status">
+                <option value="">-- Seleccione --</option>
+                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
+                {
+                    <option value="@status">@status</option>
+                }
             </InputSelect>
             <ValidationMessage For="@(() => Crop.Status)" />
         </div>
@@ -93,6 +95,8 @@
 
     protected override void OnInitialized()
     {
+        Crop.StartDate = DateTime.Today; 
+        Crop.EndDate = DateTime.Today.AddMonths(12);
         editContext = new EditContext(Crop);
     }
 
@@ -117,6 +121,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Crop.StartDate = DateTime.Today;
+        Crop.EndDate = DateTime.Today.AddMonths(12);
         await LoadProjectsAsync();
         await LoadUsersAsync();
     }

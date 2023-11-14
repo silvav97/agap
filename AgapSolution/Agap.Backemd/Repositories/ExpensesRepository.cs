@@ -24,7 +24,7 @@ namespace Agap.Backemd.Repositories
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(expense => expense.Crop.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             return new Response<IEnumerable<Expense>>
@@ -43,7 +43,7 @@ namespace Agap.Backemd.Repositories
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(expense => expense.ExpenseDescription.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(expense => expense.Crop.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             double count = await queryable.CountAsync();
