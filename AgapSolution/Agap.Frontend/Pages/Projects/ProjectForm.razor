@@ -14,9 +14,16 @@
     <!--<DataAnnotationsValidator /> -->
     <div class="mb-3">
 
+        <!-- Campo para el nombre del proyecto -->
+        <div class="form-field">
+            <label>Nombre:</label>
+            <InputText class="form-control" @bind-Value="@Project.Name" />
+            <ValidationMessage For="@(() => Project.Name)" />
+        </div>
+
         <!-- Campo para el CropTypeId -->
         <div class="form-field">
-            <label>CropType:</label>
+            <label>Tipo de Cultivo:</label>
             <Select class="form-control" value="@SelectedCropTypeId" @onchange="OnCropTypeChanged">
                 <option value="">-- Seleccione --</option>
                 @foreach (var cropType in cropTypes)
@@ -26,11 +33,29 @@
             </Select>
         </div>
 
-        <!-- Campo para el nombre del proyecto -->
+        <!-- Campo para el estado del proyecto -->
         <div class="form-field">
-            <label>Nombre:</label>
-            <InputText class="form-control" @bind-Value="@Project.Name" />
-            <ValidationMessage For="@(() => Project.Name)" />
+            <label>Estado:</label>
+            <InputSelect class="form-control" @bind-Value="@Project.Status">
+                <option value=0>Creado</option>
+                <option value=1>En progreso</option>
+                <option value=2>Cerrado</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => Project.Status)" />
+        </div>
+
+        <!-- Campo para la fecha de inicio -->
+        <div class="form-field">
+            <label>Fecha de Inicio:</label>
+            <InputDate class="form-control" @bind-Value="@Project.StartDate" />
+            <ValidationMessage For="@(() => Project.StartDate)" />
+        </div>
+        
+        <!-- Campo para la fecha de fin -->
+        <div class="form-field">
+            <label>Fecha de Fin:</label>
+            <InputDate class="form-control" @bind-Value="@Project.EndDate" />
+            <ValidationMessage For="@(() => Project.EndDate)" />
         </div>
 
         <!-- Campo para el municipio -->
@@ -47,20 +72,6 @@
             <ValidationMessage For="@(() => Project.TotalBudget)" />
         </div>
 
-
-        
-
-        <!-- Campo para el CropTypeId -->
-        <div class="form-field">
-            <label>CropType:</label>
-            <Select class="form-control" value="@SelectedCropTypeId" @onchange="OnCropTypeChanged">
-                <option value="">-- Seleccione --</option>
-                @foreach (var cropType in cropTypes)
-                {
-                    <option value="@cropType.Id">@cropType.Name</option>
-                }
-            </Select>
-        </div>
 
         <!-- Botones de acción -->
         <button class="btn btn-primary" type="submit">Guardar</button>

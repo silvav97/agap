@@ -33,8 +33,8 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>tipoCultivo</th>
                             <th>Proyecto</th>
+                            <th>tipoCultivo</th>
                             <th>Estado</th>
                             <th>Fecha de inicio</th>
                             <th>Fecha fin</th>
@@ -47,8 +47,8 @@
                         @foreach (var project in projects!)
                         {
                             <tr>
-                                <td>@project.CropType?.Name</td>
                                 <td>@project.Name</td>
+                                <td>@project.CropType?.Name</td>
                                 <td>@project.Status</td>
                                 <td>@project.StartDate</td>
                                 <td>@project.EndDate</td>
