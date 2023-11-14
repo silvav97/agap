@@ -18,6 +18,17 @@
             <ValidationMessage For="@(() => Crop.Name)" />
         </div>
 
+        <div class="form-field">
+            <label>Usuario:</label>
+            <Select class="form-control" value="@SelectedUserId" @onchange="OnUserChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.FullName</option>
+                }
+            </Select>
+        </div>
+
         <!-- Campo para el estado del cultivo -->
         <div class="form-field">
             <label>Estado:</label>
@@ -34,13 +45,6 @@
             <label>Fecha de Inicio:</label>
             <InputDate class="form-control" @bind-Value="@Crop.StartDate" />
             <ValidationMessage For="@(() => Crop.StartDate)" />
-        </div>
-
-        <!-- Campo para la fecha de fin -->
-        <div class="form-field">
-            <label>Fecha de Fin:</label>
-            <InputDate class="form-control" @bind-Value="@Crop.EndDate" />
-            <ValidationMessage For="@(() => Crop.EndDate)" />
         </div>
 
         <!-- Campo para el presupuesto asignado -->
@@ -77,6 +81,8 @@
 
 @code {
     private EditContext editContext = null!;
+    private List<User> users = new List<User>();
+    public string SelectedUserId { get; set; }
 
     protected override void OnInitialized()
     {
@@ -105,6 +111,7 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadProjectsAsync();
+        await LoadUsersAsync();
     }
 
     private async Task LoadProjectsAsync()
@@ -119,6 +126,16 @@
         loading = false;
     }
 
+    private async Task LoadUsersAsync()
+    {
+        var response = await repository.GetAsync<List<User>>("api/accounts/all");
+        if (!response.Error)
+        {
+            users = response.Response;
+        }
+    }
+
+
     protected override void OnParametersSet()
     {
         SelectedProjectId = Crop.ProjectId;
@@ -129,6 +146,12 @@
     {
         SelectedProjectId = Convert.ToInt32(e.Value);
         Crop.ProjectId = SelectedProjectId;
+    }
+
+    private void OnUserChanged(ChangeEventArgs e)
+    {
+        SelectedUserId = e.Value.ToString();
+        Crop.UserId = SelectedUserId;
     }
 
     private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
