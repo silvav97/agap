@@ -47,6 +47,13 @@
             <ValidationMessage For="@(() => Crop.StartDate)" />
         </div>
 
+        <!-- Campo para la fecha de inicio -->
+        <div class="form-field">
+            <label>Fecha de Fin:</label>
+            <InputDate class="form-control" @bind-Value="@Crop.EndDate" />
+            <ValidationMessage For="@(() => Crop.EndDate)" />
+        </div>
+
         <!-- Campo para el presupuesto asignado -->
         <div class="form-field">
             <label>Presupuesto Asignado:</label>
@@ -138,6 +145,7 @@
 
     protected override void OnParametersSet()
     {
+        SelectedUserId = Crop.UserId;
         SelectedProjectId = Crop.ProjectId;
     }
 
