@@ -197,7 +197,7 @@ namespace Agap.Backemd.Data
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida potente", Brand = "Colinagro", PricePerGram = 4.30F });
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(); 
             }
         }
 
