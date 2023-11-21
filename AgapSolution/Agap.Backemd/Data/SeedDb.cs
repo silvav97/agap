@@ -194,9 +194,9 @@ namespace Agap.Backemd.Data
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida x", Brand = "Copralab", PricePerGram = 140.00F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xx", Brand = "BioPotent", PricePerGram = 2.12F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
-                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida mediano", Brand = "Calferquim", PricePerGram = 2.55F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida potente", Brand = "Colinagro", PricePerGram = 4.30F });
-
+                 
                 await _context.SaveChangesAsync(); 
             }
         }
