@@ -5,7 +5,6 @@ using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Runtime.InteropServices;
 
 namespace Agap.Backemd.Data
@@ -195,13 +194,12 @@ namespace Agap.Backemd.Data
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida x", Brand = "Copralab", PricePerGram = 140.00F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xx", Brand = "BioPotent", PricePerGram = 2.12F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
-                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
-                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxxx", Brand = "Colinagro", PricePerGram = 4.30F });
-
-                await _context.SaveChangesAsync();
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida mediano", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida potente", Brand = "Colinagro", PricePerGram = 4.30F });
+                 
+                await _context.SaveChangesAsync(); 
             }
         }
-
 
         private async Task CheckProjectsAsync()
         {
@@ -217,9 +215,10 @@ namespace Agap.Backemd.Data
                 _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Creado, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
                 _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Cerrado, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
 
-                await _context.SaveChangesAsync();                
+                await _context.SaveChangesAsync();
             }
         }
+
         private async Task CheckCropsAsync()
         {
             if (!_context.Crops.Any())
@@ -237,7 +236,6 @@ namespace Agap.Backemd.Data
             }
         }
 
-
         private async Task CheckExpensesAsync()
         {
             if (!_context.Expenses.Any())
@@ -251,8 +249,6 @@ namespace Agap.Backemd.Data
                 await _context.SaveChangesAsync();
             }
         }
-
-        
 
         private async Task CheckCountriesAsync()
         {
