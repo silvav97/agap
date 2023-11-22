@@ -12,6 +12,8 @@ namespace Agap.Backemd.Data
         {
         }
 
+        public DbSet<CropReport> CropReports { get; set; }
+
         public DbSet<ProjectReport> ProjectReports { get; set; }
 
         public DbSet<Fertilizer> Fertilizers { get; set; }
