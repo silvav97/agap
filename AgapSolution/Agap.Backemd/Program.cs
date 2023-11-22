@@ -63,6 +63,7 @@ builder.Services.AddScoped<IRuntimeInformationWrapper, RuntimeInformationWrapper
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+builder.Services.AddScoped<ICropReportsRepository, CropReportsRepository>();
 builder.Services.AddScoped<IProjectReportsRepository, ProjectReportsRepository>();
 builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
 builder.Services.AddScoped<ICropsRepository, CropsRepository>();
@@ -75,6 +76,7 @@ builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 builder.Services.AddScoped<IStatesRepository, StatesRepository>();
 builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
+builder.Services.AddScoped<ICropReportsUnitOfWork, CropReportsUnitOfWork>();
 builder.Services.AddScoped<IProjectReportsUnitOfWork, ProjectReportsUnitOfWork>();
 builder.Services.AddScoped<IProjectsUnitOfWork, ProjectsUnitOfWork>();
 builder.Services.AddScoped<ICropsUnitOfWork, CropsUnitOfWork>();
