@@ -7,7 +7,6 @@
     <div class="card-header">
         <span>
             <i class="oi oi-list"></i> Reporte de Cultivos
-            <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Reporte de Cultivo</a>
         </span>
     </div>
     <div class="card-body">
@@ -36,7 +35,6 @@
                             <th>Cultivo</th>
                             <th>Cultivo Id</th>
                             <th>Gastos Esperados</th>
-                            <th style="width:168px"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,10 +44,6 @@
                                 <td>@cropReport.Crop.Name</td>
                                 <td>@cropReport.Crop.Id</td>
                                 <td>@cropReport.ExpectedExpense</td>
-                                <td>
-                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(cropReport.Id, true))><i class="oi oi-pencil" /> Editar</a>
-                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(cropReport))><i class="oi oi-trash" /> Borrar</button>
-                                </td>
                             </tr>
                         }
                     </tbody>
@@ -78,26 +72,6 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
-    }
-
-    private async Task ShowModalAsync(int id = 0, bool isEdit = false)
-    {
-        IModalReference modalReference;
-
-        if (isEdit)
-        {
-            modalReference = Modal.Show<CropReportEdit>(string.Empty, new ModalParameters().Add("CropReportId", id));
-        }
-        else
-        {
-            modalReference = Modal.Show<CropReportCreate>();
-        }
-
-        var result = await modalReference.Result;
-        if (result.Confirmed)
-        {
-            await LoadAsync();
-        }
     }
 
     private async Task SelectedPageAsync(int page)
@@ -176,41 +150,5 @@
         int page = 1;
         await LoadAsync(page);
         await SelectedPageAsync(page);
-    }
-
-    private async Task DeleteAsync(CropReport cropReport)
-    {
-        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
-            {
-                Title = "Confirmación",
-                Text = $"¿Esta seguro que quieres borrar el reporte de cultivo: {cropReport.Id}?",
-                Icon = SweetAlertIcon.Question,
-                ShowCancelButton = true
-            });
-
-        var confirm = string.IsNullOrEmpty(result.Value);
-        if (confirm)
-        {
-            return;
-        }
-
-        var response = await repository.DeleteAsync($"api/cropreports/{cropReport.Id}");
-        if (response.Error)
-        {
-            var message = await response.GetErrorMessageAsync();
-            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-            return;
-        }
-
-        await LoadAsync();
-
-        var toast = sweetAlertService.Mixin(new SweetAlertOptions
-            {
-                Toast = true,
-                Position = SweetAlertPosition.BottomEnd,
-                ShowConfirmButton = true,
-                Timer = 3000
-            });
-        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
     }
 }
