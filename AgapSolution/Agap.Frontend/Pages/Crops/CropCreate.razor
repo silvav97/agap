@@ -1,5 +1,4 @@
-﻿@page "/crops/create"
-@using Agap.Shared.Entities
+﻿@page "/crops/create/{ProjectId:int}"
 @attribute [Authorize(Roles = "Admin")]
 @inject NavigationManager navigationManager
 @inject IRepository repository
@@ -16,8 +15,12 @@
     [CascadingParameter]
     BlazoredModalInstance BlazoredModal { get; set; } = default!;
 
+    [Parameter]
+    public int ProjectId { get; set; }
+
     private async Task CreateAsync()
     {
+        crop.ProjectId = ProjectId;
         var response = await repository.PostAsync("/api/crops", crop);
         if (response.Error)
         {
@@ -25,7 +28,7 @@
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
-
+        
         await BlazoredModal.CloseAsync(ModalResult.Ok());
         Return();
 
@@ -36,12 +39,12 @@
                 ShowConfirmButton = true,
                 Timer = 3000
             });
-        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Cultivo creado con éxito.");
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro creado con éxito.");
     }
 
     private void Return()
     {
         cropForm!.FormPostedSuccessfully = true;
-        navigationManager.NavigateTo("/crops");
+        navigationManager.NavigateTo($"/projects/details/{ProjectId}");
     }
 }

@@ -1,15 +1,13 @@
-﻿@using Agap.Shared.Entities
+﻿﻿@using Agap.Shared.Entities
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
 @inject NavigationManager navigationManager
-@attribute [Authorize(Roles = "Admin")]
 
-@inject SweetAlertService sweetAlertService
 
 <NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
 
 <EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
-  <!--  <DataAnnotationsValidator /> -->
+  <!-- <DataAnnotationsValidator /> -->
     <div class="mb-3">
         <!-- Campo para el nombre del cultivo -->
         <div class="form-field">
@@ -18,13 +16,13 @@
             <ValidationMessage For="@(() => Crop.Name)" />
         </div>
 
-        <div class="form-field">
+       <div class="form-field">
             <label>Usuario:</label>
             <Select class="form-control" value="@SelectedUserId" @onchange="OnUserChanged">
                 <option value="">-- Seleccione --</option>
                 @foreach (var user in users)
                 {
-                    <option value="@user.Id">@user.FullName</option>
+                        <option value="@user.Id">@user.FullName</option>
                 }
             </Select>
         </div>
@@ -32,10 +30,12 @@
         <!-- Campo para el estado del cultivo -->
         <div class="form-field">
             <label>Estado:</label>
-            <InputSelect class="form-control" @bind-Value="@Crop.Status">
-                <option value=0>Creado</option>
-                <option value=1>En progreso</option>
-                <option value=2>Cerrado</option>
+            <InputSelect class="form-control" @bind-Value="Crop.Status">
+                <option value="">-- Seleccione --</option>
+                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
+                {
+                        <option value="@status">@status</option>
+                }
             </InputSelect>
             <ValidationMessage For="@(() => Crop.Status)" />
         </div>
@@ -47,7 +47,14 @@
             <ValidationMessage For="@(() => Crop.StartDate)" />
         </div>
 
-        <!-- Campo para el presupuesto asignado -->
+        <!-- Campo para la fecha de fin -->
+        <div class="form-field">
+            <label>Fecha de Fin:</label>
+            <InputDate class="form-control" @bind-Value="@Crop.EndDate" />
+            <ValidationMessage For="@(() => Crop.EndDate)" />
+        </div>
+
+         <!-- Campo para el presupuesto asignado -->
         <div class="form-field">
             <label>Presupuesto Asignado:</label>
             <InputNumber class="form-control" @bind-Value="@Crop.AssignedBudget" />
@@ -62,16 +69,16 @@
         </div>
 
         <!-- Campo para el Proyecto -->
-        <div class="form-field">
+        <!--<div class="form-field">
             <label>Proyecto:</label>
             <Select class="form-control" value="@SelectedProjectId" @onchange="OnProjectChanged">
                 <option value="">-- Seleccione --</option>
                 @foreach (var project in projects)
                 {
-                    <option value="@project.Id">@project.Name</option>
+                        <option value="@project.Id">@project.Name</option>
                 }
             </Select>
-        </div>
+        </div>-->
 
         <!-- Botones de acción -->
         <button class="btn btn-primary" type="submit">Guardar</button>
@@ -84,46 +91,36 @@
     private List<User> users = new List<User>();
     public string SelectedUserId { get; set; }
 
-    protected override void OnInitialized()
-    {
-        editContext = new EditContext(Crop);
-    }
-
-    [Parameter]
     [EditorRequired]
-    public Crop Crop { get; set; } = new Crop();
+    [Parameter]
+    public Crop Crop { get; set; } = null!;
 
     [EditorRequired]
     [Parameter]
     public EventCallback OnValidSubmit { get; set; }
 
+    [EditorRequired]
     [Parameter]
     public EventCallback ReturnAction { get; set; }
 
     public bool FormPostedSuccessfully { get; set; }
 
-    // Propiedad para almacenar el ID seleccionado del proyecto
-    public int SelectedProjectId { get; set; }
-
-    private List<Project> projects = new List<Project>();
     private bool loading;
+
+
+
+    protected override void OnInitialized()
+    {
+        Crop.StartDate = DateTime.Today; 
+        Crop.EndDate = DateTime.Today.AddMonths(12);
+        editContext = new(Crop);
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadProjectsAsync();
+        Crop.StartDate = DateTime.Today;
+        Crop.EndDate = DateTime.Today.AddMonths(12);
         await LoadUsersAsync();
-    }
-
-    private async Task LoadProjectsAsync()
-    {
-        loading = true;
-        var response = await repository.GetAsync<List<Project>>("api/projects");
-        if (!response.Error)
-        {
-            projects = response.Response;
-        }
-
-        loading = false;
     }
 
     private async Task LoadUsersAsync()
@@ -135,28 +132,28 @@
         }
     }
 
-
-    protected override void OnParametersSet()
+     protected override void OnParametersSet()
     {
-        SelectedProjectId = Crop.ProjectId;
+        SelectedUserId = Crop.UserId;
     }
 
-    // Método para manejar el cambio de selección del proyecto
-    private void OnProjectChanged(ChangeEventArgs e)
-    {
-        SelectedProjectId = Convert.ToInt32(e.Value);
-        Crop.ProjectId = SelectedProjectId;
-    }
-
-    private void OnUserChanged(ChangeEventArgs e)
+     private void OnUserChanged(ChangeEventArgs e)
     {
         SelectedUserId = e.Value.ToString();
         Crop.UserId = SelectedUserId;
     }
 
+
     private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
     {
-        if (!editContext.IsModified() || FormPostedSuccessfully)
+        var formWasEdited = editContext.IsModified();
+
+        if (!formWasEdited)
+        {
+            return;
+        }
+
+        if (FormPostedSuccessfully)
         {
             return;
         }
@@ -165,17 +162,18 @@
             {
                 Title = "Confirmación",
                 Text = "¿Deseas abandonar la página y perder los cambios?",
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonColor = "#3085d6",
-                CancelButtonColor = "#d33",
-                ConfirmButtonText = "Sí, abandonar",
-                CancelButtonText = "No, cancelar"
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
             });
 
-        if (result.IsConfirmed)
+        var confirm = !string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
         {
-            context.PreventNavigation();
+            return;
         }
+
+        context.PreventNavigation();
     }
 }
+
