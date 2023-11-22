@@ -2,22 +2,22 @@
 
 namespace Agap.Shared.Entities
 {
-    public class ProjectReport
+    public class CropReport
     {
         public int Id { get; set; }
 
-        [Display(Name = "Proyecto ID")]
-        public int ProjectId { get; set; }
+        [Display(Name = "Cultivo ID")]
+        public int CropId { get; set; }
 
-        public Project? Project { get; set; }
+        public Crop? Crop { get; set; }
 
         [Display(Name = "Venta Total")]
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
         public float TotalSale { get; set; }
 
-        [Display(Name = "Presupuesto Total")]
+        [Display(Name = "Presupuesto Asignado")]
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
-        public float TotalBudget { get; set; }
+        public float AssignedBudget { get; set; }
 
         [Display(Name = "Gasto Esperado")]
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
