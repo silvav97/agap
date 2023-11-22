@@ -46,6 +46,11 @@ namespace Agap.Shared.Entities
 
         [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
         public float TotalBudget { get; set; }
+
+        public static implicit operator Project(ProjectReport v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
