@@ -227,7 +227,6 @@ namespace Agap.Backemd.Data
                 var project1 = _context.Projects.Single(project => project.Name == "ProyectoBanano");
                 var project2 = _context.Projects.Single(project => project.Name == "ProyectoMango");
 
-
                 _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
                 _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
                 _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
