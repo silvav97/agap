@@ -33,8 +33,12 @@
                     <thead>
                         <tr>
                             <th>Cultivo</th>
-                            <th>Cultivo Id</th>
-                            <th>Gastos Esperados</th>
+                            <th>Venta Total</th>
+                            <th>Presupuesto Asignado</th>
+                            <th>Gastos Esperados</th
+                            <th>Gastos Reales</th>
+                            <th>Ganancias</th>
+                            <th>Rentabilidad</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,8 +46,12 @@
                         {
                             <tr>
                                 <td>@cropReport.Crop.Name</td>
-                                <td>@cropReport.Crop.Id</td>
+                                <td>@cropReport.TotalSale</td>
+                                <td>@cropReport.AssignedBudget</td>
                                 <td>@cropReport.ExpectedExpense</td>
+                                <td>@cropReport.RealExpense</td>
+                                <td>@cropReport.Profit</td>
+                                <td>@cropReport.Profitability</td>
                             </tr>
                         }
                     </tbody>
