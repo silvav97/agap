@@ -1,0 +1,162 @@
+﻿@page "/projectreports"
+@attribute [Authorize(Roles = "Admin")]
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<div class="card">
+    <div class="card-header">
+        <span>
+            <i class="oi oi-list"></i> Reporte de Proyectos
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="mb-2" style="display: flex; flex-wrap:wrap; align-items: center;">
+            <div>
+                <input style="width: 400px;" type="text" class="form-control" id="titulo" placeholder="Buscar reporte de proyecto..." @bind-value="Filter" />
+            </div>
+            <div class="mx-1">
+                <button type="button" class="btn btn-outline-primary" @onclick="ApplyFilterAsync"><i class="oi oi-layers" /> Filtrar</button>
+                <button type="button" class="btn btn-outline-danger" @onclick="CleanFilterAsync"><i class="oi oi-ban" /> Limpiar</button>
+            </div>
+        </div>
+    
+        <GenericList MyList="projectReports">
+            <NoRecords>
+                <p>Aun no hay reporte de proyecto registrados.</p>
+            </NoRecords>
+            <Body>
+                <Pagination CurrentPage="currentPage"
+                            TotalPages="totalPages"
+                            SelectedPage="SelectedPageAsync" />
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>Venta Total</th>
+                            <th>Presupuesto Total</th>
+                            <th>Gastos Esperados</th
+                            <th>Gastos Reales</th>
+                            <th>Ganancias</th>
+                            <th>Rentabilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var projectReport in projectReports!)
+                        {
+                            <tr>
+                                <td>@projectReport.Project.Name</td>
+                                <td>@projectReport.TotalSale</td>
+                                <td>@projectReport.TotalBudget</td>
+                                <td>@projectReport.ExpectedExpense</td>
+                                <td>@projectReport.RealExpense</td>
+                                <td>@projectReport.Profit</td>
+                                <td>@projectReport.Profitability</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
+    </div>
+</div>
+
+@code {
+    private List<ProjectReport>? projectReports;
+    private int currentPage = 1;
+    private int totalPages;
+
+    [CascadingParameter]
+    IModalService Modal { get; set; } = default!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Page { get; set; } = string.Empty;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Filter { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task SelectedPageAsync(int page)
+    {
+        currentPage = page;
+        await LoadAsync(page);
+    }
+
+    private async Task LoadAsync(int page = 1)
+    {
+        if (!string.IsNullOrWhiteSpace(Page))
+        {
+            page = Convert.ToInt32(Page);
+        }
+
+        var ok = await LoadListAsync(page);
+        if (ok)
+        {
+            await LoadPagesAsync();
+        }
+    }
+
+    private async Task<bool> LoadListAsync(int page)
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/projectreports?page={page}";
+        }
+        else
+        {
+            url = $"api/projectreports?page={page}&filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<List<ProjectReport>>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return false;
+        }
+        projectReports = response.Response;
+        return true;
+    }
+
+    private async Task LoadPagesAsync()
+    {
+        var url = string.Empty;
+        if (string.IsNullOrEmpty(Filter))
+        {
+            url = $"api/projectreports/totalPages";
+        }
+        else
+        {
+            url = $"api/projectreports/totalPages?filter={Filter}";
+        }
+
+        var response = await repository.GetAsync<int>(url);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        totalPages = response.Response;
+    }
+
+    private async Task CleanFilterAsync()
+    {
+        Filter = string.Empty;
+        await ApplyFilterAsync();
+    }
+
+    private async Task ApplyFilterAsync()
+    {
+        int page = 1;
+        await LoadAsync(page);
+        await SelectedPageAsync(page);
+    }
+}
