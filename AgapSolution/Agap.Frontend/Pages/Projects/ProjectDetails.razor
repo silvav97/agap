@@ -40,8 +40,14 @@ else
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Cultivo</th>
-                                <th style="width:90px">Ciudades</th>
+                                <th>Nombre</th>
+                                <th>Dueño</th>
+                                <th>Proyecto</th>
+                                <th>Estado</th>
+                                <th>Fecha de Inicio</th>
+                                <th>Presupuesto Asignado</th>
+                                <th>Gasto Esperado</th>
+                                <th>Área</th>
                                 <th style="width:168px"></th>
                             </tr>
                         </thead>
@@ -49,8 +55,14 @@ else
                             @foreach (var crop in crops!)
                             {
                                 <tr>
-                                    <td><a href="?">@crop.Name</a></td>
-                                    <td> @crop.Status</td>
+                                    <td>@crop.Name</td>
+                                    <td>@crop.User.FullName</td>
+                                    <td>@crop.Project.Name</td>
+                                    <td>@crop.Status</td>
+                                    <td>@crop.StartDate.ToShortDateString()</td>
+                                    <td>@crop.AssignedBudget</td>
+                                    <td>@crop.ExpectedExpense</td>
+                                    <td>@crop.Area</td>
                                     <td>
                                         <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
                                         <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>

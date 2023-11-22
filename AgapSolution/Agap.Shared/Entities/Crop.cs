@@ -63,11 +63,11 @@ namespace Agap.Shared.Entities
 public enum CropStatus
 {
     [Display(Name = "Creado")]
-    Created,
+    Creado,
 
-    [Display(Name = "En progreso")]
-    InProgress,
+    [Display(Name = "Activo")]
+    Activo,
 
     [Display(Name = "Cerrado")]
-    Closed
+    Cerrado
 }
