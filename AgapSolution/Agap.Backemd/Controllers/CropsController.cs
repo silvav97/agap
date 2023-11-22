@@ -41,15 +41,5 @@ namespace Agap.Backemd.Controllers
             return BadRequest();
         }
 
-        [HttpGet("{id}")]
-        public override async Task<IActionResult> GetAsync(int id)
-        {
-            var response = await _cropsUnitOfWork.GetAsync(id);
-            if (response.WasSuccess)
-            {
-                return Ok(response.Result);
-            }
-            return NotFound(response.Message);
-        }
     }
 }
