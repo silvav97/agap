@@ -28,6 +28,8 @@ namespace Agap.Backemd.Data
 
         public DbSet<Project> Projects { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
 
         public DbSet<City> Cities { get; set; }
         public DbSet<Country> Countries { get; set; }
