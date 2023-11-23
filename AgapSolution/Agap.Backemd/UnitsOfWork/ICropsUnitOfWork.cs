@@ -11,5 +11,7 @@ namespace Agap.Backemd.UnitsOfWork
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
 
         Task<Response<IEnumerable<Crop>>> GetAllAsync();
+
+        Task<Response<bool>> CloseCropAsync(int cropId);
     }
 }

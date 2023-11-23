@@ -26,19 +26,7 @@
                 }
             </Select>
         </div>
-
-        <!-- Campo para la descripción del gasto -->
-        <div class="form-field">
-            <label>Estado:</label>
-            <InputSelect class="form-control" @bind-Value="Crop.Status">
-                <option value="">-- Seleccione --</option>
-                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
-                {
-                        <option value="@status">@status</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => Crop.Status)" />
-        </div>
+        
 
         <!-- Campo para la fecha de inicio -->
         <div class="form-field">

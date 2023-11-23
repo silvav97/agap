@@ -214,7 +214,7 @@ namespace Agap.Backemd.Data
                 var cropTypeCoco = _context.CropTypes.Single(cropType => cropType.Name == "Coco");
 
                 _context.Projects.Add(new Project { Name = "ProyectoBanano", CropTypeId = cropTypeBanano.Id, CropType = cropTypeBanano, Status = ProjectStatus.Creado, StartDate = DateTime.Now, Municipality = "Medellin", TotalBudget = 1.435F });
-                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.Activo, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.Cerrado, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
                 _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Creado, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
                 _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Cerrado, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
 

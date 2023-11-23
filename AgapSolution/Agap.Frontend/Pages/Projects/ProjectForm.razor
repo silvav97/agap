@@ -33,16 +33,6 @@
             </Select>
         </div>
 
-        <!-- Campo para el estado del proyecto -->
-        <div class="form-field">
-            <label>Estado:</label>
-            <InputSelect class="form-control" @bind-Value="@Project.Status">
-                <option value=0>Creado</option>
-                <option value=1>En progreso</option>
-                <option value=2>Cerrado</option>
-            </InputSelect>
-            <ValidationMessage For="@(() => Project.Status)" />
-        </div>
 
         <!-- Campo para la fecha de inicio -->
         <div class="form-field">

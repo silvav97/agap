@@ -52,5 +52,22 @@ namespace Agap.Backemd.Controllers
             return BadRequest();
         }
 
+
+        [HttpPut("closecrop/{cropId}")]
+        public async Task<IActionResult> CloseCropAsync(int cropId)
+        {
+            if (cropId <= 0)
+            {
+                return BadRequest("Invalid crop ID");
+            }
+
+            var action = await _cropsUnitOfWork.CloseCropAsync(cropId);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest(action.Message);
+        }
+
     }
 }

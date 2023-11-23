@@ -75,6 +75,29 @@ namespace Agap.Backemd.Repositories
         }
 
 
-        
+        public async Task<Response<bool>> CloseCropAsync(int cropId)
+        {
+            var crop = await _context.Crops.FirstOrDefaultAsync(c => c.Id == cropId);
+            if (crop == null)
+            {
+                return new Response<bool>
+                {
+                    WasSuccess = false,
+                    Message = "Cultivo no encontrado."
+                };
+            }
+
+            crop.Status = CropStatus.Cerrado;
+            _context.Crops.Update(crop);
+            await _context.SaveChangesAsync();
+
+            return new Response<bool>
+            {
+                WasSuccess = true,
+                Result = true
+            };
+        }
+
+
     }
 }
