@@ -54,5 +54,44 @@ namespace Agap.Backemd.Repositories
                 Result = totalPages
             };
         }
+
+
+        public async Task<Response<int>> AddAsync(int cropId)
+        {
+            try
+            {
+                // Aquí asumimos que hay lógica para obtener los datos necesarios del cultivo
+                var crop = await _context.Crops.FirstOrDefaultAsync(crop => crop.Id == cropId);
+                if (crop == null)
+                {
+                    return new Response<int> { WasSuccess = false, Message = "Cultivo no encontrado." };
+                }
+
+                float totalSale = 54321.5F;
+                float realExpense = 12345.2F;
+
+                var cropReport = new CropReport
+                {
+                    CropId = cropId,
+                    Crop = crop,
+                    TotalSale = totalSale,
+                    AssignedBudget = crop.AssignedBudget,
+                    ExpectedExpense = crop.ExpectedExpense, 
+                    RealExpense = realExpense,
+                    Profit = totalSale - realExpense,
+                    Profitability = (totalSale - realExpense) / crop.AssignedBudget
+                };
+
+                _context.CropReports.Add(cropReport);
+                await _context.SaveChangesAsync();
+
+                return new Response<int> { WasSuccess = true, Result = cropReport.Id };
+            }
+            catch (Exception ex)
+            {
+                // Manejar la excepción y devolver una respuesta con error
+                return new Response<int> { WasSuccess = false, Message = ex.Message };
+            }
+        }
     }
 }

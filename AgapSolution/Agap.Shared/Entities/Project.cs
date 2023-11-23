@@ -59,9 +59,6 @@ public enum ProjectStatus
     [Display(Name = "Creado")]
     Creado,
 
-    [Display(Name = "Activo")]
-    Activo,
-
     [Display(Name = "Cerrado")]
     Cerrado
 }
