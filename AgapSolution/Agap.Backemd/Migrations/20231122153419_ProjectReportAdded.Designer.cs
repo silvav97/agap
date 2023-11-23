@@ -4,6 +4,7 @@ using Agap.Backemd.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Agap.Backemd.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231122153419_ProjectReportAdded")]
+    partial class ProjectReportAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,42 +172,6 @@ namespace Agap.Backemd.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Crops");
-                });
-
-            modelBuilder.Entity("Agap.Shared.Entities.CropReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<float>("AssignedBudget")
-                        .HasColumnType("real");
-
-                    b.Property<int>("CropId")
-                        .HasColumnType("int");
-
-                    b.Property<float>("ExpectedExpense")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Profit")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Profitability")
-                        .HasColumnType("real");
-
-                    b.Property<float>("RealExpense")
-                        .HasColumnType("real");
-
-                    b.Property<float>("TotalSale")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CropId");
-
-                    b.ToTable("CropReports");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
@@ -668,17 +635,6 @@ namespace Agap.Backemd.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Agap.Shared.Entities.CropReport", b =>
-                {
-                    b.HasOne("Agap.Shared.Entities.Crop", "Crop")
-                        .WithMany()
-                        .HasForeignKey("CropId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Crop");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>

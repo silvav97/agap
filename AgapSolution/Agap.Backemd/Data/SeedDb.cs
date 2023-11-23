@@ -38,6 +38,9 @@ namespace Agap.Backemd.Data
             await CheckProjectsAsync();
             await CheckCropsAsync();
             await CheckExpensesAsync();
+            await CheckProjectReportsAsync();
+            await CheckCropReportsAsync();
+
         }
 
         private async Task CheckCountriesAsync2()
@@ -244,6 +247,36 @@ namespace Agap.Backemd.Data
                 _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
                 _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.2F, ExpenseDescription = ExpenseType.FertilizerExpense, ExpenseDate = DateTime.Now });
                 _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.8F, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckProjectReportsAsync()
+        {
+            if (!_context.ProjectReports.Any())
+            {
+                var projectBanano = _context.Projects.Single(project => project.Name == "ProyectoBanano");
+                var projectMango = _context.Projects.Single(project => project.Name == "ProyectoMango");
+
+
+                _context.ProjectReports.Add(new ProjectReport { Project = projectBanano, ProjectId = projectBanano.Id, ExpectedExpense = 12.5F, RealExpense = 13.4F, Profit = 30F, TotalSale = 29F, TotalBudget = 21.2F, Profitability = 70F });
+                _context.ProjectReports.Add(new ProjectReport { Project = projectMango, ProjectId = projectMango.Id, ExpectedExpense = 11.6F, RealExpense = 21.4F, Profit = 45.2F, TotalSale = 39F, TotalBudget = 21.2F, Profitability = 80.4F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckCropReportsAsync()
+        {
+            if (!_context.CropReports.Any())
+            {
+                var cropFincaFeliz = _context.Crops.Single(crop => crop.Name == "Finca feliz");
+                var cropFincaTriste = _context.Crops.Single(crop => crop.Name == "Finca triste");
+
+
+                _context.CropReports.Add(new CropReport { Crop = cropFincaFeliz, CropId = cropFincaFeliz.Id, ExpectedExpense = 12.5F, RealExpense = 13.4F, Profit = 30F, TotalSale = 29F, AssignedBudget = 21.2F, Profitability = 70F });
+                _context.CropReports.Add(new CropReport { Crop = cropFincaTriste, CropId = cropFincaTriste.Id, ExpectedExpense = 11.6F, RealExpense = 21.4F, Profit = 45.2F, TotalSale = 39F, AssignedBudget = 21.2F, Profitability = 80.4F });
 
                 await _context.SaveChangesAsync();
             }
