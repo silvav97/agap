@@ -30,6 +30,17 @@ namespace Agap.Backemd.Controllers
             return BadRequest();
         }
 
+        [HttpGet("all")]
+        public override async Task<IActionResult> GetAllAsync()
+        {
+            var response = await _cropsUnitOfWork.GetAllAsync();
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return BadRequest();
+        }
+
         [HttpGet("totalPages")]
         public override async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {

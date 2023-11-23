@@ -7,6 +7,9 @@ namespace Agap.Backemd.UnitsOfWork
     {
         Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination);
 
+        Task<Response<IEnumerable<T>>> GetAllAsync();
+
+
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
 
         Task<Response<T>> AddAsync(T model);

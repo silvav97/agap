@@ -25,7 +25,18 @@ namespace Agap.Frontend.Repositories
 
         public async Task<HttpResponseWrapper<T>> GetAsync<T>(string url)
         {
-            Console.WriteLine("----->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", url);
+            var responseHttp = await _httpClient.GetAsync(url);
+            if (responseHttp.IsSuccessStatusCode)
+            {
+                var response = await UnserializeAnswer<T>(responseHttp);
+                return new HttpResponseWrapper<T>(response, false, responseHttp);
+            }
+
+            return new HttpResponseWrapper<T>(default, true, responseHttp);
+        }
+
+        public async Task<HttpResponseWrapper<T>> GetAllAsync<T>(string url)
+        {
             var responseHttp = await _httpClient.GetAsync(url);
             if (responseHttp.IsSuccessStatusCode)
             {

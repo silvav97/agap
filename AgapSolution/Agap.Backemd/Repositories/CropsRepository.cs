@@ -18,11 +18,12 @@ namespace Agap.Backemd.Repositories
 
         public override async Task<Response<IEnumerable<Crop>>> GetAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Crops
+                var queryable = _context.Crops
                 .Include(crop => crop.Project)
                 .Include(crop => crop.User)
                 .Where(crop => crop.ProjectId == pagination.Id)
                 .AsQueryable();
+            
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
@@ -35,6 +36,22 @@ namespace Agap.Backemd.Repositories
                 Result = await queryable
                     .OrderBy(crop => crop.Status)
                     .Paginate(pagination)
+                    .ToListAsync()
+            };
+        }
+
+        public override async Task<Response<IEnumerable<Crop>>> GetAllAsync()
+        {
+            var queryable = _context.Crops
+            .Include(crop => crop.Project)
+            .Include(crop => crop.User)
+            .AsQueryable();
+
+            return new Response<IEnumerable<Crop>>
+            {
+                WasSuccess = true,
+                Result = await queryable
+                    .OrderBy(crop => crop.Status)
                     .ToListAsync()
             };
         }

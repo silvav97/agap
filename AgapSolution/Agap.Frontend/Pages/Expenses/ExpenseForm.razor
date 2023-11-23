@@ -99,7 +99,7 @@
     private async Task LoadCropsAsync()
     {
         loading = true;
-        var response = await repository.GetAsync<List<Crop>>("api/crops");
+        var response = await repository.GetAllAsync<List<Crop>>("api/crops/all");
         if (!response.Error)
         {
             crops = response.Response;

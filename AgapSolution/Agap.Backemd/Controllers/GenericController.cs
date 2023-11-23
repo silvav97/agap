@@ -24,6 +24,17 @@ namespace Agap.Backemd.Controllers
             return BadRequest();
         }
 
+        [HttpGet("all")]
+        public virtual async Task<IActionResult> GetAllAsync()
+        {
+            var action = await _unitOfWork.GetAllAsync();
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return BadRequest();
+        }
+
         [HttpGet("totalPages")]
         public virtual async Task<IActionResult> GetPagesAsync([FromQuery] PaginationDTO pagination)
         {

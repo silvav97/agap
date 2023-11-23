@@ -19,6 +19,9 @@ namespace Agap.Backemd.UnitsOfWork
 
         public virtual async Task<Response<IEnumerable<T>>> GetAsync(PaginationDTO pagination) => await _repository.GetAsync(pagination);
 
+        public virtual async Task<Response<IEnumerable<T>>> GetAllAsync() => await _repository.GetAllAsync();
+
+
         public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _repository.GetTotalPagesAsync(pagination);
 
         public virtual async Task<Response<T>> GetAsync(int id) => await _repository.GetAsync(id);
