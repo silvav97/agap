@@ -4,6 +4,8 @@
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
+@inject HttpClient Http
+
 
 @if (project is null)
 {
@@ -64,8 +66,11 @@ else
                                     <td>@crop.ExpectedExpense</td>
                                     <td>@crop.Area</td>
                                     <td>
-                                        <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
-                                        <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>
+                                        <div class="btn-group" role="group" aria-label="Acciones de Cultivo">
+                                            <a class="btn btn-warning btn-sm me-2" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                            <button class="btn btn-danger btn-sm me-2" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>
+                                            <button class="btn btn-info btn-sm" @onclick=@(() => CloseCropAsync(crop))><i class="oi oi-lock-locked" /> Cerrar</button>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -264,5 +269,44 @@ else
                 Timer = 3000
             });
         await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro borrado con éxito.");
+    }
+
+    private async Task CloseCropAsync(Crop crop)
+    {
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Realmente deseas cerrar el cultivo? {crop.Name}",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+                CancelButtonText = "No",
+                ConfirmButtonText = "Si"
+            });
+
+        if (result.IsConfirmed)
+        {
+            var response = await repository.PutAsync<object>($"api/crops/closecrop/{crop.Id}", null);
+
+            if (response.Error)
+            {
+                var message = await response.GetErrorMessageAsync();
+                await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                // Actualizar la interfaz de usuario según sea necesario
+                await LoadAsync();
+
+                // Mostrar un mensaje de éxito
+                var toast = sweetAlertService.Mixin(new SweetAlertOptions
+                    {
+                        Toast = true,
+                        Position = SweetAlertPosition.BottomEnd,
+                        ShowConfirmButton = false,
+                        Timer = 3000
+                    });
+                await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Cultivo cerrado con éxito.");
+            }
+        }
     }
 }

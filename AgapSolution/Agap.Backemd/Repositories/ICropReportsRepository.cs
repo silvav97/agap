@@ -9,5 +9,8 @@ namespace Agap.Backemd.Repositories
         Task<Response<IEnumerable<CropReport>>> GetAsync(PaginationDTO pagination);
 
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);
+
+        Task<Response<int>> AddAsync(int cropId);
+
     }
 }

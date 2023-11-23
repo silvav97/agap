@@ -33,18 +33,6 @@
             </Select>
         </div>
 
-        <!-- Campo para el estado del proyecto -->
-        <div class="form-field">
-            <label>Estado:</label>
-            <InputSelect class="form-control" @bind-Value="Project.Status">
-                <option value="">-- Seleccione --</option>
-                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
-                {
-                    <option value="@status">@status</option>
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => Project.Status)" />
-        </div>
 
         <!-- Campo para la fecha de inicio -->
         <div class="form-field">

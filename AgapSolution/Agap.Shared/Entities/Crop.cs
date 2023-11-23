@@ -65,9 +65,6 @@ public enum CropStatus
     [Display(Name = "Creado")]
     Creado,
 
-    [Display(Name = "Activo")]
-    Activo,
-
     [Display(Name = "Cerrado")]
     Cerrado
 }
