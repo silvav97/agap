@@ -68,18 +68,6 @@
             <ValidationMessage For="@(() => Crop.ExpectedExpense)" />
         </div>
 
-        <!-- Campo para el Proyecto -->
-        <!--<div class="form-field">
-            <label>Proyecto:</label>
-            <Select class="form-control" value="@SelectedProjectId" @onchange="OnProjectChanged">
-                <option value="">-- Seleccione --</option>
-                @foreach (var project in projects)
-                {
-                        <option value="@project.Id">@project.Name</option>
-                }
-            </Select>
-        </div>-->
-
         <!-- Botones de acción -->
         <button class="btn btn-primary" type="submit">Guardar</button>
         <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
