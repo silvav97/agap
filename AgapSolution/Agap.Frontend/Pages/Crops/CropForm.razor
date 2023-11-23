@@ -1,0 +1,168 @@
+﻿﻿@using Agap.Shared.Entities
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+   <DataAnnotationsValidator /> 
+    <div class="mb-3">
+        <!-- Campo para el nombre del cultivo -->
+        <div class="form-field">
+            <label>Nombre:</label>
+            <InputText class="form-control" @bind-Value="@Crop.Name" />
+            <ValidationMessage For="@(() => Crop.Name)" />
+        </div>
+
+        <!-- Campo para seleccionar el usuario -->
+       <div class="form-field">
+            <label>Usuario:</label>
+            <Select class="form-control" value="@SelectedUserId" @onchange="OnUserChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var user in users)
+                {
+                        <option value="@user.Id">@user.FullName</option>
+                }
+            </Select>
+        </div>
+
+        <!-- Campo para el estado del gasto -->
+        <div class="form-field">
+            <label>Estado:</label>
+            <InputSelect class="form-control" @bind-Value="Crop.Status">
+                <option value="">-- Seleccione --</option>
+                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
+                {
+                        <option value="@status">@status</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Crop.Status)" />
+        </div>
+
+        <!-- Campo para la fecha de inicio -->
+        <div class="form-field">
+            <label>Fecha de Inicio:</label>
+            <InputDate class="form-control" @bind-Value="@Crop.StartDate" />
+            <ValidationMessage For="@(() => Crop.StartDate)" />
+        </div>
+
+        <!-- Campo para la fecha de fin -->
+        <div class="form-field">
+            <label>Fecha de Fin:</label>
+            <InputDate class="form-control" @bind-Value="@Crop.EndDate" />
+            <ValidationMessage For="@(() => Crop.EndDate)" />
+        </div>
+
+         <!-- Campo para el presupuesto asignado -->
+        <div class="form-field">
+            <label>Presupuesto Asignado:</label>
+            <InputNumber class="form-control" @bind-Value="@Crop.AssignedBudget" />
+            <ValidationMessage For="@(() => Crop.AssignedBudget)" />
+        </div>
+
+        <!-- Campo para el gasto esperado -->
+        <div class="form-field">
+            <label>Gasto Esperado:</label>
+            <InputNumber class="form-control" @bind-Value="@Crop.ExpectedExpense" />
+            <ValidationMessage For="@(() => Crop.ExpectedExpense)" />
+        </div>
+
+        <!-- Botones de acción -->
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
+    </div>
+</EditForm>
+
+@code {
+    private EditContext editContext = null!;
+    private List<User> users = new List<User>();
+    public string SelectedUserId { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public Crop Crop { get; set; } = null!;
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    private bool loading;
+
+
+
+    protected override void OnInitialized()
+    {
+        Crop.StartDate = DateTime.Today; 
+        Crop.EndDate = DateTime.Today.AddMonths(12);
+        editContext = new(Crop);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Crop.StartDate = DateTime.Today;
+        Crop.EndDate = DateTime.Today.AddMonths(12);
+        await LoadUsersAsync();
+    }
+
+    private async Task LoadUsersAsync()
+    {
+        var response = await repository.GetAsync<List<User>>("api/accounts/all");
+        if (!response.Error)
+        {
+            users = response.Response;
+        }
+    }
+
+     protected override void OnParametersSet()
+    {
+        SelectedUserId = Crop.UserId;
+    }
+
+     private void OnUserChanged(ChangeEventArgs e)
+    {
+        SelectedUserId = e.Value.ToString();
+        Crop.UserId = SelectedUserId;
+    }
+
+
+    private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        var formWasEdited = editContext.IsModified();
+
+        if (!formWasEdited)
+        {
+            return;
+        }
+
+        if (FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        var confirm = !string.IsNullOrEmpty(result.Value);
+
+        if (confirm)
+        {
+            return;
+        }
+
+        context.PreventNavigation();
+    }
+}
+

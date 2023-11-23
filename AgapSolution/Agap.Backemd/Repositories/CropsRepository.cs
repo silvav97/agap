@@ -18,12 +18,16 @@ namespace Agap.Backemd.Repositories
 
         public override async Task<Response<IEnumerable<Crop>>> GetAsync(PaginationDTO pagination)
         {
-            var queryable = _context.Crops
+                var queryable = _context.Crops
+                .Include(crop => crop.Project)
+                .Include(crop => crop.User)
+                .Where(crop => crop.ProjectId == pagination.Id)
                 .AsQueryable();
+            
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(crop => crop.Status.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(crop => crop.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             return new Response<IEnumerable<Crop>>
@@ -36,13 +40,29 @@ namespace Agap.Backemd.Repositories
             };
         }
 
+        public override async Task<Response<IEnumerable<Crop>>> GetAllAsync()
+        {
+            var queryable = _context.Crops
+            .Include(crop => crop.Project)
+            .Include(crop => crop.User)
+            .AsQueryable();
+
+            return new Response<IEnumerable<Crop>>
+            {
+                WasSuccess = true,
+                Result = await queryable
+                    .OrderBy(crop => crop.Status)
+                    .ToListAsync()
+            };
+        }
+
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
             var queryable = _context.Crops.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(crop => crop.Status.ToString().ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(crop => crop.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             double count = await queryable.CountAsync();
@@ -53,5 +73,8 @@ namespace Agap.Backemd.Repositories
                 Result = totalPages
             };
         }
+
+
+        
     }
 }

@@ -19,7 +19,7 @@ namespace Agap.Backemd.Repositories
         public override async Task<Response<IEnumerable<Project>>> GetAsync(PaginationDTO pagination)
         {
             var queryable = _context.Projects
-                .Include(project => project.CropList)
+                .Include(project => project.CropType)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
@@ -31,7 +31,7 @@ namespace Agap.Backemd.Repositories
             {
                 WasSuccess = true,
                 Result = await queryable
-                    .OrderBy(x => x.Name)
+                    .OrderBy(project => project.Name)
                     .Paginate(pagination)
                     .ToListAsync()
             };
@@ -52,6 +52,29 @@ namespace Agap.Backemd.Repositories
             {
                 WasSuccess = true,
                 Result = totalPages
+            };
+        }
+
+        public override async Task<Response<Project>> GetAsync(int id)
+        {
+            var project = await _context.Projects
+                 .Include(project => project.CropList!)
+                 //.ThenInclude(crop => crop.ExpenseList)
+                 .FirstOrDefaultAsync(project => project.Id == id);
+
+            if (project == null)
+            {
+                return new Response<Project>
+                {
+                    WasSuccess = false,
+                    Message = "Proyecto no existe"
+                };
+            }
+
+            return new Response<Project>
+            {
+                WasSuccess = true,
+                Result = project
             };
         }
     }

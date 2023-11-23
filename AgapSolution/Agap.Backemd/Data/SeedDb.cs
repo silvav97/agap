@@ -5,7 +5,6 @@ using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Runtime.InteropServices;
 
 namespace Agap.Backemd.Data
@@ -39,6 +38,9 @@ namespace Agap.Backemd.Data
             await CheckProjectsAsync();
             await CheckCropsAsync();
             await CheckExpensesAsync();
+            await CheckProjectReportsAsync();
+            await CheckCropReportsAsync();
+
         }
 
         private async Task CheckCountriesAsync2()
@@ -157,7 +159,7 @@ namespace Agap.Backemd.Data
             "Pitaya",
             "Liches"
         };
-                var fertilizer = _context.Fertilizers.Single(f => f.Name == "Tierra De Diatomeas Diatomita");
+                var fertilizer = _context.Fertilizers.Single(f => f.Name == "CACAO CRECIMIENTO");
                 var pesticide = _context.Pesticides.Single(p => p.Name == "Pesticida 11");
 
                 foreach (var name in cropTypeNames)
@@ -195,13 +197,12 @@ namespace Agap.Backemd.Data
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida x", Brand = "Copralab", PricePerGram = 140.00F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xx", Brand = "BioPotent", PricePerGram = 2.12F });
                 _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxx", Brand = "Minerargro", PricePerGram = 0.71F });
-                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxx", Brand = "Calferquim", PricePerGram = 2.55F });
-                _context.Pesticides.Add(new Pesticide { Name = "Pesticida xxxxx", Brand = "Colinagro", PricePerGram = 4.30F });
-
-                await _context.SaveChangesAsync();
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida mediano", Brand = "Calferquim", PricePerGram = 2.55F });
+                _context.Pesticides.Add(new Pesticide { Name = "Pesticida potente", Brand = "Colinagro", PricePerGram = 4.30F });
+                 
+                await _context.SaveChangesAsync(); 
             }
         }
-
 
         private async Task CheckProjectsAsync()
         {
@@ -212,14 +213,15 @@ namespace Agap.Backemd.Data
                 var cropTypeGuayaba = _context.CropTypes.Single(cropType => cropType.Name == "Guayaba");
                 var cropTypeCoco = _context.CropTypes.Single(cropType => cropType.Name == "Coco");
 
-                _context.Projects.Add(new Project { Name = "ProyectoBanano", CropTypeId = cropTypeBanano.Id, CropType = cropTypeBanano, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Medellin", TotalBudget = 1.435F });
-                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.InProgress, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
-                _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Created, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
-                _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Closed, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoBanano", CropTypeId = cropTypeBanano.Id, CropType = cropTypeBanano, Status = ProjectStatus.Creado, StartDate = DateTime.Now, Municipality = "Medellin", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoMango", CropTypeId = cropTypeMango.Id, CropType = cropTypeMango, Status = ProjectStatus.Activo, StartDate = DateTime.Now, Municipality = "Puerto Berrio", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoGuayaba", CropTypeId = cropTypeGuayaba.Id, CropType = cropTypeGuayaba, Status = ProjectStatus.Creado, StartDate = DateTime.Now, Municipality = "Segovia", TotalBudget = 1.435F });
+                _context.Projects.Add(new Project { Name = "ProyectoCoco", CropTypeId = cropTypeCoco.Id, CropType = cropTypeCoco, Status = ProjectStatus.Cerrado, StartDate = DateTime.Now, Municipality = "Copacabana", EndDate = DateTime.Now, TotalBudget = 1.435F });
 
-                await _context.SaveChangesAsync();                
+                await _context.SaveChangesAsync();
             }
         }
+
         private async Task CheckCropsAsync()
         {
             if (!_context.Crops.Any())
@@ -228,15 +230,13 @@ namespace Agap.Backemd.Data
                 var project1 = _context.Projects.Single(project => project.Name == "ProyectoBanano");
                 var project2 = _context.Projects.Single(project => project.Name == "ProyectoMango");
 
-
-                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, ProjectId = project2.Id, Project = project2, Name = "Finca lenta", Status = CropStatus.Created, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca lenta", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
                 await _context.SaveChangesAsync();
             }
         }
-
 
         private async Task CheckExpensesAsync()
         {
@@ -252,7 +252,35 @@ namespace Agap.Backemd.Data
             }
         }
 
-        
+        private async Task CheckProjectReportsAsync()
+        {
+            if (!_context.ProjectReports.Any())
+            {
+                var projectBanano = _context.Projects.Single(project => project.Name == "ProyectoBanano");
+                var projectMango = _context.Projects.Single(project => project.Name == "ProyectoMango");
+
+
+                _context.ProjectReports.Add(new ProjectReport { Project = projectBanano, ProjectId = projectBanano.Id, ExpectedExpense = 12.5F, RealExpense = 13.4F, Profit = 30F, TotalSale = 29F, TotalBudget = 21.2F, Profitability = 70F });
+                _context.ProjectReports.Add(new ProjectReport { Project = projectMango, ProjectId = projectMango.Id, ExpectedExpense = 11.6F, RealExpense = 21.4F, Profit = 45.2F, TotalSale = 39F, TotalBudget = 21.2F, Profitability = 80.4F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckCropReportsAsync()
+        {
+            if (!_context.CropReports.Any())
+            {
+                var cropFincaFeliz = _context.Crops.Single(crop => crop.Name == "Finca feliz");
+                var cropFincaTriste = _context.Crops.Single(crop => crop.Name == "Finca triste");
+
+
+                _context.CropReports.Add(new CropReport { Crop = cropFincaFeliz, CropId = cropFincaFeliz.Id, ExpectedExpense = 12.5F, RealExpense = 13.4F, Profit = 30F, TotalSale = 29F, AssignedBudget = 21.2F, Profitability = 70F });
+                _context.CropReports.Add(new CropReport { Crop = cropFincaTriste, CropId = cropFincaTriste.Id, ExpectedExpense = 11.6F, RealExpense = 21.4F, Profit = 45.2F, TotalSale = 39F, AssignedBudget = 21.2F, Profitability = 80.4F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
 
         private async Task CheckCountriesAsync()
         {

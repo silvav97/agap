@@ -17,5 +17,7 @@ namespace Agap.Backemd.UnitsOfWork
         public override async Task<Response<IEnumerable<Project>>> GetAsync(PaginationDTO pagination) => await _projectsRepository.GetAsync(pagination);
 
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination) => await _projectsRepository.GetTotalPagesAsync(pagination);
+
+        public override async Task<Response<Project>> GetAsync(int id) => await _projectsRepository.GetAsync(id);
     }
 }

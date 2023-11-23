@@ -1,0 +1,134 @@
+﻿@using Agap.Shared.Entities
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <!-- Campo para el CropId -->
+        <div class="form-field">
+            <label>Cultivo:</label>
+            <Select class="form-control" value="@SelectedCropId" @onchange="OnCropChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var crop in crops)
+                {
+                    <option value="@crop.Id">@crop.Name</option>
+                }
+            </Select>
+        </div>
+
+        <!-- Campo para el valor del gasto -->
+        <div class="form-field">
+            <label>Valor del Gasto:</label>
+            <InputNumber class="form-control" @bind-Value="@Expense.ExpenseValue" />
+            <ValidationMessage For="@(() => Expense.ExpenseValue)" />
+        </div>
+
+        <!-- Campo para la descripción del gasto -->
+        <div class="form-field">
+            <label>Descripción del Gasto:</label>
+            <InputSelect class="form-control" @bind-Value="Expense.ExpenseDescription">
+                <option value="">-- Seleccione --</option>
+                @foreach (var expenseType in Enum.GetValues(typeof(ExpenseType)))
+                {
+                    <option value="@expenseType">@expenseType</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Expense.ExpenseDescription)" />
+        </div>
+
+        <!-- Campo para la fecha del gasto -->
+        <div class="form-field">
+            <label>Fecha del Gasto:</label>
+            <InputDate class="form-control" @bind-Value="@Expense.ExpenseDate" />
+            <ValidationMessage For="@(() => Expense.ExpenseDate)" />
+        </div>
+
+        <!-- Botones de acción -->
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
+    </div>
+</EditForm>
+
+@code {
+    private EditContext editContext = null!;
+    private List<Crop> crops = new List<Crop>();
+    private int SelectedCropId { get; set; }
+    private bool loading;
+
+    protected override void OnInitialized()
+    {
+        Expense.ExpenseDate = DateTime.Today;
+        editContext = new EditContext(Expense);
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public Expense Expense { get; set; } = new Expense();
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Expense.ExpenseDate = DateTime.Today;
+        await LoadCropsAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        SelectedCropId = Expense.CropId;
+    }
+
+    private void OnCropChanged(ChangeEventArgs e)
+    {
+        SelectedCropId = Convert.ToInt32(e.Value);
+        Expense.CropId = SelectedCropId;
+    }
+
+    private async Task LoadCropsAsync()
+    {
+        loading = true;
+        var response = await repository.GetAllAsync<List<Crop>>("api/crops/all");
+        if (!response.Error)
+        {
+            crops = response.Response;
+        }
+        loading = false;
+    }
+
+    private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (!editContext.IsModified() || FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonColor = "#3085d6",
+                CancelButtonColor = "#d33",
+                ConfirmButtonText = "Sí, abandonar",
+                CancelButtonText = "No, cancelar"
+            });
+
+        if (result.IsConfirmed)
+        {
+            context.PreventNavigation();
+        }
+    }
+}

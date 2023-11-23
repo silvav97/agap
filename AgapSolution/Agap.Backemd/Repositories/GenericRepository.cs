@@ -100,6 +100,17 @@ namespace Agap.Backemd.Repositories
             };
         }
 
+        public virtual async Task<Response<IEnumerable<T>>> GetAllAsync()
+        {
+            var queryable = _entity.AsQueryable();
+            return new Response<IEnumerable<T>>
+            {
+                WasSuccess = true,
+                Result = await queryable
+                    .ToListAsync()
+            };
+        }
+
         public virtual async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
             var queryable = _entity.AsQueryable();

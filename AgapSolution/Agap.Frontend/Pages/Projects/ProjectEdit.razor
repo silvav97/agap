@@ -1,0 +1,74 @@
+﻿@page "/projects/edit/{ProjectId:int}"
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@attribute [Authorize(Roles = "Admin")]
+@inject NavigationManager navigationManager
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+
+<h3>Editar Proyecto</h3>
+
+@if (project is null)
+{
+    <Loading />
+}
+else
+{
+    <ProjectForm @ref="projectForm" Project="project" OnValidSubmit="SaveAsync" ReturnAction="Return" />
+}
+
+@code {
+    private Project? project;
+    private ProjectForm? projectForm;
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
+    [Parameter]
+    public int ProjectId { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var response = await repository.GetAsync<Project>($"/api/projects/{ProjectId}");
+        if (response.Error)
+        {
+            if (response.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                Return();
+            }
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+        project = response.Response;
+    }
+
+    private async Task SaveAsync()
+    {
+        var response = await repository.PutAsync($"/api/projects", project);
+        if (response.Error)
+        {
+            var message = await response.GetErrorMessageAsync();
+            await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+            return;
+        }
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+        Return();
+
+        var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000
+            });
+        await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Cambios en el proyecto guardados con éxito.");
+    }
+
+    private void Return()
+    {
+        projectForm!.FormPostedSuccessfully = true;
+        navigationManager.NavigateTo("/projects");
+    }
+}
+

@@ -160,13 +160,51 @@ namespace Agap.Backemd.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Crops");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.CropReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<float>("AssignedBudget")
+                        .HasColumnType("real");
+
+                    b.Property<int>("CropId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("ExpectedExpense")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Profit")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Profitability")
+                        .HasColumnType("real");
+
+                    b.Property<float>("RealExpense")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TotalSale")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CropId");
+
+                    b.ToTable("CropReports");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
@@ -292,6 +330,42 @@ namespace Agap.Backemd.Migrations
                     b.HasIndex("CropTypeId");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.ProjectReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<float>("ExpectedExpense")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Profit")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Profitability")
+                        .HasColumnType("real");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("RealExpense")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TotalBudget")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TotalSale")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectReports");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>
@@ -585,7 +659,26 @@ namespace Agap.Backemd.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Agap.Shared.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.CropReport", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Crop", "Crop")
+                        .WithMany()
+                        .HasForeignKey("CropId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Crop");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.Expense", b =>
@@ -608,6 +701,17 @@ namespace Agap.Backemd.Migrations
                         .IsRequired();
 
                     b.Navigation("CropType");
+                });
+
+            modelBuilder.Entity("Agap.Shared.Entities.ProjectReport", b =>
+                {
+                    b.HasOne("Agap.Shared.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Agap.Shared.Entities.State", b =>

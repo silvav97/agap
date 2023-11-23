@@ -6,6 +6,8 @@ namespace Agap.Backemd.UnitsOfWork
 {
     public interface IProjectsUnitOfWork
     {
+        Task<Response<Project>> GetAsync(int id);
+
         Task<Response<IEnumerable<Project>>> GetAsync(PaginationDTO pagination);
 
         Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination);

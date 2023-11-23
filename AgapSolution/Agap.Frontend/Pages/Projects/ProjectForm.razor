@@ -1,0 +1,173 @@
+﻿@using Agap.Shared.Entities
+@using Agap.Shared.Entities.Agap.Shared.Entities;
+@inject IRepository repository
+@inject SweetAlertService sweetAlertService
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+
+@inject SweetAlertService sweetAlertService
+
+<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigationAsync"></NavigationLock>
+
+<EditForm EditContext="editContext" OnValidSubmit="OnValidSubmit">
+    <!--<DataAnnotationsValidator /> -->
+    <div class="mb-3">
+
+        <!-- Campo para el nombre del proyecto -->
+        <div class="form-field">
+            <label>Nombre:</label>
+            <InputText class="form-control" @bind-Value="@Project.Name" />
+            <ValidationMessage For="@(() => Project.Name)" />
+        </div>
+
+        <!-- Campo para el CropTypeId -->
+        <div class="form-field">
+            <label>Tipo de Cultivo:</label>
+            <Select class="form-control" value="@SelectedCropTypeId" @onchange="OnCropTypeChanged">
+                <option value="">-- Seleccione --</option>
+                @foreach (var cropType in cropTypes)
+                {
+                    <option value="@cropType.Id">@cropType.Name</option>
+                }
+            </Select>
+        </div>
+
+        <!-- Campo para el estado del proyecto -->
+        <div class="form-field">
+            <label>Estado:</label>
+            <InputSelect class="form-control" @bind-Value="Project.Status">
+                <option value="">-- Seleccione --</option>
+                @foreach (var status in Enum.GetValues(typeof(CropStatus)))
+                {
+                    <option value="@status">@status</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => Project.Status)" />
+        </div>
+
+        <!-- Campo para la fecha de inicio -->
+        <div class="form-field">
+            <label>Fecha de Inicio:</label>
+            <InputDate class="form-control" @bind-Value="@Project.StartDate" />
+            <ValidationMessage For="@(() => Project.StartDate)" />
+        </div>
+        
+        <!-- Campo para la fecha de fin -->
+        <div class="form-field">
+            <label>Fecha de Fin:</label>
+            <InputDate class="form-control" @bind-Value="@Project.EndDate" />
+            <ValidationMessage For="@(() => Project.EndDate)" />
+        </div>
+
+        <!-- Campo para el municipio -->
+        <div class="form-field">
+            <label>Municipio:</label>
+            <InputText class="form-control" @bind-Value="@Project.Municipality" />
+            <ValidationMessage For="@(() => Project.Municipality)" />
+        </div>
+
+        <!-- Campo para el presupuesto total -->
+        <div class="form-field">
+            <label>Presupuesto Total:</label>
+            <InputNumber class="form-control" @bind-Value="@Project.TotalBudget" />
+            <ValidationMessage For="@(() => Project.TotalBudget)" />
+        </div>
+
+
+        <!-- Botones de acción -->
+        <button class="btn btn-primary" type="submit">Guardar</button>
+        <button class="btn btn-secondary" @onclick="ReturnAction">Regresar</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+    private EditContext editContext = null!;
+
+    protected override void OnInitialized()
+    {
+        Project.StartDate = DateTime.Today;
+        Project.EndDate = DateTime.Today.AddMonths(12);
+        editContext = new EditContext(Project);
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public Project Project { get; set; } = new Project();
+
+    [EditorRequired]
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback ReturnAction { get; set; }
+
+    public bool FormPostedSuccessfully { get; set; }
+
+    // Agregamos dos propiedades para almacenar los ID seleccionados
+    public int SelectedCropTypeId { get; set; }
+
+    private List<CropType> cropTypes = new List<CropType>();      // fertilizer
+
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Project.StartDate = DateTime.Today;
+        Project.EndDate = DateTime.Today.AddMonths(12);
+        await LoadCropTypesAsync();
+    }
+
+    private async Task LoadCropTypesAsync()
+    {
+        loading = true;
+        var response = await repository.GetAsync<List<CropType>>("api/croptypes");
+        if (!response.Error)
+        {
+            cropTypes = response.Response;
+        }
+
+        loading = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        SelectedCropTypeId = Project.CropTypeId;
+    }
+
+    // Métodos para manejar el cambio de selección
+    private void OnCropTypeChanged(ChangeEventArgs e)
+    {
+        SelectedCropTypeId = Convert.ToInt32(e.Value);
+        Project.CropTypeId = SelectedCropTypeId;
+    }
+
+    private async Task OnBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (!editContext.IsModified() || FormPostedSuccessfully)
+        {
+            return;
+        }
+
+        var result = await sweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Deseas abandonar la página y perder los cambios?",
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonColor = "#3085d6",
+                CancelButtonColor = "#d33",
+                ConfirmButtonText = "Sí, abandonar",
+                CancelButtonText = "No, cancelar"
+            });
+
+        if (result.IsConfirmed)
+        {
+            context.PreventNavigation();
+        }
+    }
+}
+
+
