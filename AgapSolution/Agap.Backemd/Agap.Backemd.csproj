@@ -25,4 +25,10 @@
     <ProjectReference Include="..\Agap.Shared\Agap.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Images\users\user.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
