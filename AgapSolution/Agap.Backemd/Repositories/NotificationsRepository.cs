@@ -20,6 +20,7 @@ namespace Agap.Backemd.Repositories
         {
             var queryable = _context.Notifications
                 .Include(notification => notification.Crop)
+                .ThenInclude(crop => crop.User)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
