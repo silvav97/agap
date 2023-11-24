@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/AgapBackend/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsLocalConnection_BF9192E823",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/backenddbserver/databases/Agap.Backemd_db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:LocalConnection",
+      "dynamicId": null
+    },
+    "storage1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/AgapBackend/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAzureStorage_C076EEBCB8, /subscriptions/b22bc414-8af9-4968-acf0-20aa06d95b0a/resourcegroups/agap-solution/providers/Microsoft.Web/sites/AgapBackend/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAzureStorage_DBE0E8BBAA",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/agapblobstorage",
+      "type": "storage.azure",
+      "connectionId": "ConnectionStrings:AzureStorage",
+      "dynamicId": null
+    }
+  }
+}
