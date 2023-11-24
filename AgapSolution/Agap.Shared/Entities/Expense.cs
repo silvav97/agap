@@ -23,6 +23,8 @@ namespace Agap.Shared.Entities
         [Required(ErrorMessage = "El campo {0} es obligatorio.")]
         public ExpenseType ExpenseDescription { get; set; }
 
+        [Display(Name = "Foto")]
+        public string? Photo { get; set; }
 
         [DataType(DataType.Date)]
         [Display(Name = "Fecha Gasto")]
