@@ -5,6 +5,7 @@ using Agap.Shared.Entities.Agap.Shared.Entities;
 using Agap.Shared.Enums;
 using Agap.Shared.Responses;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Agap.Backemd.Data
@@ -40,7 +41,7 @@ namespace Agap.Backemd.Data
             await CheckExpensesAsync();
             await CheckProjectReportsAsync();
             await CheckCropReportsAsync();
-
+            await CheckNotificationsAsync();
         }
 
         private async Task CheckCountriesAsync2()
@@ -277,6 +278,28 @@ namespace Agap.Backemd.Data
 
                 _context.CropReports.Add(new CropReport { Crop = cropFincaFeliz, CropId = cropFincaFeliz.Id, ExpectedExpense = 12.5F, RealExpense = 13.4F, Profit = 30F, TotalSale = 29F, AssignedBudget = 21.2F, Profitability = 70F });
                 _context.CropReports.Add(new CropReport { Crop = cropFincaTriste, CropId = cropFincaTriste.Id, ExpectedExpense = 11.6F, RealExpense = 21.4F, Profit = 45.2F, TotalSale = 39F, AssignedBudget = 21.2F, Profitability = 80.4F });
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckNotificationsAsync()
+        {
+            if (!_context.Notifications.Any())
+            {
+                var crops = await _context.Crops.ToListAsync();
+                var random = new Random();
+
+                foreach (var crop in crops)
+                {
+                    _context.Notifications.Add(new Notification
+                    {
+                        CropId = crop.Id,
+                        TitleMessage = "Recordatorio de Tarea",
+                        BodyMessage = "Es hora de aplicar el tratamiento para el cultivo.",
+                        Periodicity = random.Next(1, 31)
+                    });
+                }
 
                 await _context.SaveChangesAsync();
             }
