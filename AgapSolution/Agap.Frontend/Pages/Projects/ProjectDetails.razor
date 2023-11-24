@@ -69,7 +69,7 @@ else
                                         <div class="btn-group" role="group" aria-label="Acciones de Cultivo">
                                             <a class="btn btn-warning btn-sm me-2" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
                                             <button class="btn btn-danger btn-sm me-2" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>
-                                            <button class="btn btn-info btn-sm" @onclick=@(() => CloseCropAsync(crop))><i class="oi oi-lock-locked" /> Cerrar</button>
+                                            <button class="btn btn-info btn-sm" @onclick=@(() => CloseCropAsync(crop)) disabled="@(crop.Status.ToString() == "Cerrado")"><i class="oi oi-lock-locked" /> Cerrar</button>
                                         </div>
                                     </td>
                                 </tr>
