@@ -1,10 +1,11 @@
 ﻿@page "/projects/details/{ProjectId:int}"
 @using Agap.Frontend.Pages.Crops;
-@attribute [Authorize(Roles = "Admin")]
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 @inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "Admin")]
 
 
 @if (project is null)
@@ -17,7 +18,10 @@ else
         <div class="card-header">
             <span>
                 <i class="oi oi-globe"></i> @project.Name
-                <a class="btn btn-sm btn-primary float-end mx-1" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Cultivo</a>
+                @if (userRole == "Admin")
+                {
+                    <a class="btn btn-sm btn-primary float-end mx-1" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Cultivo</a>
+                }
                 <a class="btn btn-sm btn-success float-end" href="/projects"><i class="oi oi-arrow-thick-left" /> Regresar</a>
             </span>
         </div>
@@ -67,9 +71,12 @@ else
                                     <td>@crop.Area</td>
                                     <td>
                                         <div class="btn-group" role="group" aria-label="Acciones de Cultivo">
-                                            <a class="btn btn-warning btn-sm me-2" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
-                                            <button class="btn btn-danger btn-sm me-2" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>
-                                            <button class="btn btn-info btn-sm" @onclick=@(() => CloseCropAsync(crop))><i class="oi oi-lock-locked" /> Cerrar</button>
+                                            @if (userRole == "Admin")
+                                            {
+                                                <a class="btn btn-warning btn-sm me-2" @onclick=@(() => ShowModalAsync(crop.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                                <button class="btn btn-danger btn-sm me-2" @onclick=@(() => DeleteAsync(crop))><i class="oi oi-trash" /> Borrar</button>
+                                                <button class="btn btn-info btn-sm" @onclick=@(() => CloseCropAsync(crop))><i class="oi oi-lock-locked" /> Cerrar</button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -102,8 +109,17 @@ else
     [SupplyParameterFromQuery]
     public string Filter { get; set; } = string.Empty;
 
+    private string userRole = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userRole = user.FindFirst(c => c.Type.Contains("role"))?.Value ?? string.Empty;
+        }
         await LoadAsync();
     }
 
@@ -181,7 +197,6 @@ else
         if (string.IsNullOrEmpty(Filter))
         {
             url = $"api/crops?id={ProjectId}&page={page}";
-            //url = $"api/projects/{ProjectId}"
         }
         else
         {

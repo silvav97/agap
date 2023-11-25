@@ -1,13 +1,16 @@
 ﻿@page "/projects"
-@attribute [Authorize(Roles = "Admin")]
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="card">
     <div class="card-header">
         <span>
             <i class="oi oi-list"></i> Proyectos
-            <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Proyecto</a>
+            @if (userRole == "Admin")
+            {
+                <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Proyecto</a>
+            }
         </span>
     </div>
     <div class="card-body">
@@ -47,7 +50,14 @@
                         @foreach (var project in projects!)
                         {
                             <tr>
-                                <td><a href="/projects/details/@project.Id"> @project.Name</a></td>
+                                @if (userRole == "Admin")
+                                {
+                                    <td><a href="/projects/details/@project.Id"> @project.Name</a></td>
+                                }
+                                @if (userRole == "Farmer")
+                                {
+                                    <td>@project.Name</td>
+                                }
                                 <td>@project.CropType?.Name</td>
                                 <td>@project.Status</td>
                                 <td>@project.StartDate</td>
@@ -55,8 +65,11 @@
                                 <td>@project.Municipality</td>
                                 <td>@project.TotalBudget</td>
                                 <td>
-                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(project.Id, true))><i class="oi oi-pencil" /> Editar</a>
-                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(project))><i class="oi oi-trash" /> Borrar</button>
+                                    @if (userRole == "Admin")
+                                    {
+                                        <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(project.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                        <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(project))><i class="oi oi-trash" /> Borrar</button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -83,8 +96,17 @@
     [SupplyParameterFromQuery]
     public string Filter { get; set; } = string.Empty;
 
+    private string userRole = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userRole = user.FindFirst(c => c.Type.Contains("role"))?.Value ?? string.Empty;
+        }
         await LoadAsync();
     }
 

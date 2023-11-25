@@ -1,14 +1,18 @@
 ﻿@page "/expenses"
 @using Agap.Shared.Entities
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Farmer")]
 @inject IRepository repository
 @inject SweetAlertService sweetAlertService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="card">
     <div class="card-header">
         <span>
             <i class="oi oi-list"></i> Gastos
-            <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Gasto</a>
+            @if (userRole == "Farmer")
+            {
+                <a class="btn btn-sm btn-primary float-end" @onclick=@(() => ShowModalAsync())><i class="oi oi-plus"></i> Adicionar Gasto</a>
+            }
         </span>
     </div>
     <div class="card-body">
@@ -50,8 +54,11 @@
                                 <td>@expense.ExpenseDescription</td>
                                 <td>@expense.ExpenseDate.ToString("yyyy-MM-dd")</td>
                                 <td>
-                                    <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(expense.Id, true))><i class="oi oi-pencil" /> Editar</a>
-                                    <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(expense))><i class="oi oi-trash" /> Borrar</button>
+                                    @if (userRole == "Admin")
+                                    {
+                                        <a class="btn btn-warning btn-sm" @onclick=@(() => ShowModalAsync(expense.Id, true))><i class="oi oi-pencil" /> Editar</a>
+                                        <button class="btn btn-danger btn-sm" @onclick=@(() => DeleteAsync(expense))><i class="oi oi-trash" /> Borrar</button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -78,8 +85,17 @@
     [SupplyParameterFromQuery]
     public string Filter { get; set; } = string.Empty;
 
+    private string userRole = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userRole = user.FindFirst(c => c.Type.Contains("role"))?.Value ?? string.Empty;
+        }
         await LoadAsync();
     }
 

@@ -36,6 +36,7 @@ namespace Agap.Backemd.Data
             await CheckCropTypesAsync();
             await CheckRolesAsync();
             await CheckUserAsync("1010", "Andres", "Vasquez", "avasquez@yopmail.com", "314 311 4450", "Hollywood", "user.jpg", UserType.Admin);
+            await CheckUserAsync("1011", "Veronica", "Montoya", "vero@yopmail.com", "313 311 4450", "Medellin", "user.jpg", UserType.Farmer);
             await CheckProjectsAsync();
             await CheckCropsAsync();
             await CheckExpensesAsync();
@@ -121,6 +122,7 @@ namespace Agap.Backemd.Data
         {
             await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
             await _userHelper.CheckRoleAsync(UserType.User.ToString());
+            await _userHelper.CheckRoleAsync(UserType.Farmer.ToString());
         }
 
         private async Task CheckFertilizersAsync()
@@ -231,10 +233,10 @@ namespace Agap.Backemd.Data
                 var project1 = _context.Projects.Single(project => project.Name == "Proyecto Banano");
                 var project2 = _context.Projects.Single(project => project.Name == "Proyecto Mango");
 
-                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca feliz", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca triste", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca rapida", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
-                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca lenta", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca productora norte", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project1.Id, Project = project1, Name = "Finca productora sur", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca productora oriente", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
+                _context.Crops.Add(new Crop { UserId = user.Id, User = user, ProjectId = project2.Id, Project = project2, Name = "Finca productora occidente", Status = CropStatus.Creado, StartDate = DateTime.Now, ExpectedExpense = 14.23F, AssignedBudget = 34.341F, SaleValue = 23.98F, Area = 2 });
                 await _context.SaveChangesAsync();
             }
         }
@@ -243,7 +245,7 @@ namespace Agap.Backemd.Data
         {
             if (!_context.Expenses.Any())
             {
-                var crop = _context.Crops.FirstOrDefault(crop => crop.Name == "Finca feliz");
+                var crop = _context.Crops.FirstOrDefault(crop => crop.Name == "Finca productora norte");
 
                 _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.5F, ExpenseDescription = ExpenseType.Pesticida, ExpenseDate = DateTime.Now });
                 _context.Expenses.Add(new Expense { CropId = crop.Id, Crop = crop, ExpenseValue = 1.2F, ExpenseDescription = ExpenseType.Fertilizante, ExpenseDate = DateTime.Now });
