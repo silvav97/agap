@@ -48,14 +48,15 @@ namespace Agap.Shared.Entities
         public float AssignedBudget { get; set; }
 
         [Display(Name = "Lista de Gastos")]
-        //public List<Expense> ExpenseList { get; set; } = new List<Expense>();
         public ICollection<Expense>? ExpenseList { get; set; }
 
 
         [Display(Name = "Valor de Venta")]
+        [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
         public float? SaleValue { get; set; }
 
         [Display(Name = "Área")]
+        [Range(0.000001f, float.MaxValue, ErrorMessage = "El valor debe ser mayor que cero")]
         public int Area { get; set; }
     }
 }

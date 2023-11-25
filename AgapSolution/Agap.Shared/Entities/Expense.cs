@@ -34,11 +34,11 @@ namespace Agap.Shared.Entities
 public enum ExpenseType
 {
     [Display(Name = "Gasto de Mano de Obra")]
-    LaborExpense,
+    Trabajadores,
 
     [Display(Name = "Gasto de Pesticida")]
-    PesticideExpense,
+    Pesticida,
 
     [Display(Name = "Gasto de Fertilizante")]
-    FertilizerExpense
+    Fertilizante
 }

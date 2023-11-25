@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,7 @@ builder.Services.AddScoped<ICropReportsRepository, CropReportsRepository>();
 builder.Services.AddScoped<IProjectReportsRepository, ProjectReportsRepository>();
 builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
 builder.Services.AddScoped<ICropsRepository, CropsRepository>();
+builder.Services.AddScoped<INotificationsRepository, NotificationsRepository>();
 builder.Services.AddScoped<IExpensesRepository, ExpensesRepository>();
 builder.Services.AddScoped<IPesticidesRepository, PesticidesRepository>();
 builder.Services.AddScoped<IFertilizersRepository, FertilizersRepository>();
@@ -80,6 +82,7 @@ builder.Services.AddScoped<ICropReportsUnitOfWork, CropReportsUnitOfWork>();
 builder.Services.AddScoped<IProjectReportsUnitOfWork, ProjectReportsUnitOfWork>();
 builder.Services.AddScoped<IProjectsUnitOfWork, ProjectsUnitOfWork>();
 builder.Services.AddScoped<ICropsUnitOfWork, CropsUnitOfWork>();
+builder.Services.AddScoped<INotificationsUnitOfWork, NotificationsUnitOfWork>();
 builder.Services.AddScoped<IExpensesUnitOfWork, ExpensesUnitOfWork>();
 builder.Services.AddScoped<IPesticidesUnitOfWork, PesticidesUnitOfWork>();
 builder.Services.AddScoped<IFertilizersUnitOfWork, FertilizersUnitOfWork>();
@@ -123,6 +126,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwtKey"]!)),
         ClockSkew = TimeSpan.Zero
     });
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:blob"], preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ConnectionStrings:AzureStorage:queue"], preferMsi: true);
+});
 
 var app = builder.Build();
 SeedData(app);

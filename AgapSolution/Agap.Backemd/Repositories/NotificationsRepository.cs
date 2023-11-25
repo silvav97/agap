@@ -7,31 +7,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Agap.Backemd.Repositories
 {
-    public class ProjectReportsRepository : GenericRepository<ProjectReport>, IProjectReportsRepository
+    public class NotificationsRepository : GenericRepository<Notification>, INotificationsRepository
     {
         private readonly DataContext _context;
 
-        public ProjectReportsRepository(DataContext context) : base(context)
+        public NotificationsRepository(DataContext context) : base(context)
         {
             _context = context;
         }
 
-        public override async Task<Response<IEnumerable<ProjectReport>>> GetAsync(PaginationDTO pagination)
+        public override async Task<Response<IEnumerable<Notification>>> GetAsync(PaginationDTO pagination)
         {
-            var queryable = _context.ProjectReports
-                .Include(projectReport => projectReport.Project)
+            var queryable = _context.Notifications
+                .Include(notification => notification.Crop)
+                .ThenInclude(crop => crop.User)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(projectReport => projectReport.Project.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(x => x.TitleMessage.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
-            return new Response<IEnumerable<ProjectReport>>
+            return new Response<IEnumerable<Notification>>
             {
                 WasSuccess = true,
                 Result = await queryable
-                    .OrderBy(projectReport => projectReport.ProjectId)
+                    .OrderBy(x => x.TitleMessage)
                     .Paginate(pagination)
                     .ToListAsync()
             };
@@ -39,11 +40,11 @@ namespace Agap.Backemd.Repositories
 
         public override async Task<Response<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
-            var queryable = _context.ProjectReports.AsQueryable();
+            var queryable = _context.Notifications.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
-                queryable = queryable.Where(projectReport => projectReport.Project.Name.ToLower().Contains(pagination.Filter.ToLower()));
+                queryable = queryable.Where(x => x.TitleMessage.ToLower().Contains(pagination.Filter.ToLower()));
             }
 
             double count = await queryable.CountAsync();
