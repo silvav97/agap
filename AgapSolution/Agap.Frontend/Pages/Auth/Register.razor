@@ -234,7 +234,7 @@ else
         }
         else
         {
-            userDTO.UserType = UserType.User;
+            userDTO.UserType = UserType.Farmer;
         }
 
         var responseHttp = await repository.PostAsync<UserDTO>("/api/accounts/CreateUser", userDTO);

@@ -30,8 +30,8 @@ namespace Agap.UnitTest.Controllers
             var pagination = new PaginationDTO();
             var expenses = new List<Expense>
             {
-                new Expense { Id = 1, CropId = 1, ExpenseValue = 100.0f, ExpenseDescription = ExpenseType.LaborExpense, ExpenseDate = DateTime.Now },
-                new Expense { Id = 2, CropId = 2, ExpenseValue = 200.0f, ExpenseDescription = ExpenseType.PesticideExpense, ExpenseDate = DateTime.Now }
+                new Expense { Id = 1, CropId = 1, ExpenseValue = 100.0f, ExpenseDescription = ExpenseType.Trabajadores, ExpenseDate = DateTime.Now },
+                new Expense { Id = 2, CropId = 2, ExpenseValue = 200.0f, ExpenseDescription = ExpenseType.Pesticida, ExpenseDate = DateTime.Now }
             };
             var response = new Response<IEnumerable<Expense>> { WasSuccess = true, Result = expenses };
             _mockExpensesUnitOfWork.Setup(x => x.GetAsync(pagination)).ReturnsAsync(response);
